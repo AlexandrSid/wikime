@@ -9,5 +9,6 @@
         <module name="JED_Pet1" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel target="11" />
   </component>
 </project>
