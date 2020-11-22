@@ -1,4 +1,5 @@
 import model.LiquorType;
+import service.LiquorService;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -10,15 +11,15 @@ import java.io.IOException;
 import java.util.List;
 
 @WebServlet(
-        name = "selectliquorservlet",
-        urlPatterns = "/SelectLiquor"
+        name = "ShowArticlesServlet",
+        urlPatterns = "/articles"
 )
 public class SelectLiquorServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
-        String liquorType = req.getParameter("Type");
+        String liquorType = req.getParameter("tag");
 
         LiquorService liquorService = new LiquorService();
         LiquorType l = LiquorType.valueOf(liquorType);
@@ -26,7 +27,7 @@ public class SelectLiquorServlet extends HttpServlet {
         List liquorBrands = liquorService.getAvailableBrands(l);
 
         req.setAttribute("brands", liquorBrands);
-        RequestDispatcher view = req.getRequestDispatcher("result.jsp");
+        RequestDispatcher view = req.getRequestDispatcher("articles.jsp");
         view.forward(req, resp);
 
     }
