@@ -1,5 +1,5 @@
-import model.LiquorType;
-import service.LiquorService;
+import model.aTag;
+import service.ArticlesFilterService;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -8,25 +8,29 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 @WebServlet(
         name = "ShowArticlesServlet",
         urlPatterns = "/articles"
 )
-public class SelectLiquorServlet extends HttpServlet {
+public class ArticlesServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
-        String liquorType = req.getParameter("tag");
+        String articleTag = req.getParameter("tag");
 
-        LiquorService liquorService = new LiquorService();
-        LiquorType l = LiquorType.valueOf(liquorType);
+        ArticlesFilterService service = new ArticlesFilterService();
 
-        List liquorBrands = liquorService.getAvailableBrands(l);
+        List requestedArticles;
+        if (articleTag.isEmpty()) {
+            requestedArticles = service.getAllArticleNames();
+        } else
+            requestedArticles = service.getAllArticleNames(Arrays.asList(new aTag(articleTag)));
 
-        req.setAttribute("brands", liquorBrands);
+        req.setAttribute("articles", requestedArticles);
         RequestDispatcher view = req.getRequestDispatcher("articles.jsp");
         view.forward(req, resp);
 
