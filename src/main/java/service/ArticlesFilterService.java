@@ -21,6 +21,7 @@ public class ArticlesFilterService {
     }
 
     public List<Article> getAllArticles(List<aTag> tags){
+        if (tags.isEmpty()) return getAllArticles();
         return repository.getFilteredByTags(tags);
     }
 

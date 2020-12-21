@@ -1,3 +1,5 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page import="java.util.*" %>
 <!DOCTYPE html>
 <html>
@@ -6,12 +8,16 @@
     <h1>
         Articles we have
     </h1>
-        <%List result= (List) request.getAttribute("articles");
-            Iterator it = result.iterator();
-            out.println("<br>List of articles: <br><br>");
-            while(it.hasNext()){
-                out.println(it.next()+"<br>");
-            }
-        %>
+
+    <br>List of articles: <br>
+
+    <c:forEach items="${articles}" var="article">
+        <div>
+            <a href="article?id=${article.getId()}">${article.getHeader()}</a>
+
+
+        </div>
+    </c:forEach>
+</center>
 </body>
 </html>

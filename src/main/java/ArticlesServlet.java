@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @WebServlet(
@@ -24,11 +25,9 @@ public class ArticlesServlet extends HttpServlet {
 
         ArticlesFilterService service = new ArticlesFilterService();
 
-        List requestedArticles;
-        if (articleTag.isEmpty()) {
-            requestedArticles = service.getAllArticleNames();
-        } else
-            requestedArticles = service.getAllArticleNames(Arrays.asList(new aTag(articleTag)));
+        List tags = (articleTag.isEmpty()) ? Collections.emptyList() : Arrays.asList(new aTag(articleTag));
+
+        List requestedArticles = service.getAllArticles(tags);
 
         req.setAttribute("articles", requestedArticles);
         RequestDispatcher view = req.getRequestDispatcher("articles.jsp");
