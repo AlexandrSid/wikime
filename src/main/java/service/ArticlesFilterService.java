@@ -10,7 +10,16 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class ArticlesFilterService {
-    private final ArticlesRepository repository = new InMemoryArticlesRepository();
+
+    //make it singleton
+    private static final ArticlesFilterService service = new ArticlesFilterService();
+    private ArticlesFilterService(){}
+
+    public static ArticlesFilterService getInstance(){
+        return service;
+    }
+
+    private final ArticlesRepository repository = InMemoryArticlesRepository.getInstance();
     {
         Main.initializeRepo(repository);
     }

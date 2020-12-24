@@ -10,6 +10,13 @@ import java.util.stream.Collectors;
 public class InMemoryArticlesRepository implements ArticlesRepository {
     private final List<Article> articlesList = new ArrayList<>();
 
+    //make it singleton
+    private static final InMemoryArticlesRepository instance = new InMemoryArticlesRepository();
+    private InMemoryArticlesRepository(){}
+    public static InMemoryArticlesRepository getInstance(){
+        return instance;
+    }
+
     @Override
     public boolean add(Article article) {
         return articlesList.add(article);
@@ -26,5 +33,14 @@ public class InMemoryArticlesRepository implements ArticlesRepository {
                 .stream()
                 .filter(ar -> ar.getTags().containsAll(tags))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Article getById(int id) {
+        return getAll()
+                .stream()
+                .filter(article -> article.getId() == id)
+                .findFirst()
+                .orElseGet(null);
     }
 }

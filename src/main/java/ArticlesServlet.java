@@ -13,7 +13,7 @@ import java.util.Collections;
 import java.util.List;
 
 @WebServlet(
-        name = "ShowArticlesServlet",
+        name = "ListArticlesServlet",
         urlPatterns = "/articles"
 )
 public class ArticlesServlet extends HttpServlet {
@@ -23,7 +23,7 @@ public class ArticlesServlet extends HttpServlet {
 
         String articleTag = req.getParameter("tag");
 
-        ArticlesFilterService service = new ArticlesFilterService();
+        ArticlesFilterService service = ArticlesFilterService.getInstance();
 
         List tags = (articleTag.isEmpty()) ? Collections.emptyList() : Arrays.asList(new aTag(articleTag));
 

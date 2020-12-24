@@ -34,7 +34,7 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        InMemoryArticlesRepository repository = new InMemoryArticlesRepository();
+        InMemoryArticlesRepository repository = InMemoryArticlesRepository.getInstance();
         Main.initializeRepo(repository);
         repository.getAll().stream().map(Article::toString).forEach(System.out::println);
 

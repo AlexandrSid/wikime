@@ -9,4 +9,5 @@ public interface ArticlesRepository {
     boolean add(Article article);
     List<Article> getAll();
     List<Article> getFilteredByTags(List<aTag> tags);
+    Article getById (int id);
 }
