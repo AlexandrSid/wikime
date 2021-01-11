@@ -11,17 +11,22 @@
     <title>Title</title>
 </head>
 <body>
+<jsp:useBean id="article" type="model.Article" />
+<% out.print(article);%>
+<form method="post" >
+    <label>Title: ${article.header}
+        <input type="text" name="title" placeholder="${article.header}"><br />
+    </label>
 
-<h3>${article.header}</h3>
-<br>
-<c:forEach items="${article.tags}" var="tag">
-
-    ${tag.getTag()}
+    <label>Tags (enter tags, separated by comma ","):
+        <input type="text" name="tags" value=""><br />
+    </label>
 
 
-</c:forEach>
-
-<br>
-${article.paragraphs}
+    <label>Text of article
+        <input type="text" name="text"><br />
+    </label>
+    <button type="submit">Save</button>
+</form>
 </body>
 </html>

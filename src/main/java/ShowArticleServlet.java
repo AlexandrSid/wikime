@@ -23,4 +23,12 @@ public class ShowArticleServlet extends HttpServlet {
         RequestDispatcher view = req.getRequestDispatcher("article.jsp");
         view.forward(req, resp);
     }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        Integer id = Integer.valueOf(req.getParameter("id"));
+        InMemoryArticlesRepository repository = InMemoryArticlesRepository.getInstance();
+        repository.delete(id);
+        resp.sendRedirect("/wikime/articles");
+    }
 }

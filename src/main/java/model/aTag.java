@@ -16,4 +16,9 @@ public class aTag {
         this.tag = newTag;
         tags.add(this);
     }
+
+    @Override
+    public String toString() {
+        return tag;
+    }
 }

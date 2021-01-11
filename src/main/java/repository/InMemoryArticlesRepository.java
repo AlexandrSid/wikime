@@ -43,4 +43,10 @@ public class InMemoryArticlesRepository implements ArticlesRepository {
                 .findFirst()
                 .orElseGet(null);
     }
+
+    @Override
+    public boolean delete(int id) {
+        Article byId = getById(id);
+        return articlesList.remove(byId);
+    }
 }

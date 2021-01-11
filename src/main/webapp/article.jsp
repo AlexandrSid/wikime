@@ -16,8 +16,13 @@
     <title>Title</title>
 </head>
 <body>
-<form method="get" action="addArticle.jsp">
-    <button type="submit" value="edit">Edit</button>
+
+<form method="get" action="/wikime/edit" >
+    <input type="hidden" name="id" value="${article.id}">
+    <button type="submit" value="${article.id}">Edit</button>
+</form>
+
+<form method="post" name="delete">
     <button type="submit" value="delete">Delete</button>
 </form>
 <h3>${article.header}</h3>
