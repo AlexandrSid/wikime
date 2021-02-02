@@ -1,6 +1,7 @@
 package repository;
 
 import model.Article;
+import model.Main;
 import model.aTag;
 
 import java.util.ArrayList;
@@ -11,9 +12,18 @@ public class InMemoryArticlesRepository implements ArticlesRepository {
     private final List<Article> articlesList = new ArrayList<>();
 
     //make it singleton
-    private static final InMemoryArticlesRepository instance = new InMemoryArticlesRepository();
-    private InMemoryArticlesRepository(){}
-    public static InMemoryArticlesRepository getInstance(){
+    private static final InMemoryArticlesRepository instance = createAndInitializeRepo();
+
+    private InMemoryArticlesRepository() {
+    }
+
+    private static InMemoryArticlesRepository createAndInitializeRepo() {
+        InMemoryArticlesRepository repository = new InMemoryArticlesRepository();
+        Main.initializeRepo(repository);
+        return repository;
+    }
+
+    public static InMemoryArticlesRepository getInstance() {
         return instance;
     }
 

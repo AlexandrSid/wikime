@@ -18,7 +18,8 @@
 <body>
 
 <form method="get" action="/wikime/edit" >
-    <input type="hidden" name="id" value="${article.id}">
+    <input type="hidden" name="id" value="${article.id}" >
+    ${out.print(article.id)}
     <button type="submit" value="${article.id}">Edit</button>
 </form>
 

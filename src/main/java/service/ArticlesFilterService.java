@@ -20,9 +20,7 @@ public class ArticlesFilterService {
     }
 
     private final ArticlesRepository repository = InMemoryArticlesRepository.getInstance();
-    {
-        Main.initializeRepo(repository);
-    }
+
 
     //этот кошмар переделаю
     public List<Article> getAllArticles(){

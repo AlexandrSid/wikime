@@ -1,3 +1,4 @@
+<%@ taglib prefix="sjp" uri="http://java.sun.com/jsp/jstl/sql" %>
 <%--
   Created by IntelliJ IDEA.
   User: alex
@@ -11,18 +12,21 @@
     <title>New Article</title>
 </head>
 <body>
-<form method="post" >
+<h1>addArticle.jsp</h1>
+<jsp:useBean id="article" type="model.Article" scope="request"/>
+<form method="post">
     <label>Title:
-        <input type="text" name="title"><br />
+        <input type="text" name="title" value="${article.header}"><br/>
     </label>
 
     <label>Tags (enter tags, separated by comma ","):
-        <input type="text" name="tags"><br />
+
+        <input type="text" name="tags" value="${article.tags}"><br/>
     </label>
 
 
     <label>Text of article
-        <input type="text" name="text"><br />
+        <input type="text" name="text" size="100" value="${article.paragraphs}"><br/>
     </label>
     <button type="submit">Save</button>
 </form>

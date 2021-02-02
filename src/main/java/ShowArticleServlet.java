@@ -16,6 +16,8 @@ import java.io.IOException;
 public class ShowArticleServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        System.out.println("doGet@ShowArticleServlet with req params:");
+        req.getParameterMap().entrySet().stream().map(e->e.getKey().toString() + " " + e.getValue().toString()).forEach(System.out::println);
         Integer id = Integer.valueOf(req.getParameter("id"));
         InMemoryArticlesRepository instance = InMemoryArticlesRepository.getInstance();
         Article article = instance.getById(id);

@@ -23,4 +23,8 @@ public class ArticleUtil {
     public static String tagsToStr(Article article){
         return article.getTags().stream().map(aTag::toString).collect(Collectors.joining(","));
     }
+
+    public static Article constructAndReturn(int id, String title, String tags, String text) {
+
+    }
 }
