@@ -59,4 +59,10 @@ public class InMemoryArticlesRepository implements ArticlesRepository {
         Article byId = getById(id);
         return articlesList.remove(byId);
     }
+
+    @Override
+    public boolean update(Article article) {
+        articlesList.remove(article.getId());
+        return articlesList.add(article);
+    }
 }

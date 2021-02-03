@@ -1,5 +1,6 @@
 package model;
 
+import com.google.gson.Gson;
 import repository.ArticlesRepository;
 import repository.InMemoryArticlesRepository;
 
@@ -34,9 +35,17 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        InMemoryArticlesRepository repository = InMemoryArticlesRepository.getInstance();
-        Main.initializeRepo(repository);
-        repository.getAll().stream().map(Article::toString).forEach(System.out::println);
+//        InMemoryArticlesRepository repository = InMemoryArticlesRepository.getInstance();
+//        Main.initializeRepo(repository);
+//        repository.getAll().stream().map(Article::toString).forEach(System.out::println);
+
+        String[] arrayOfNumbers = {"one", "two", "three", "four", "five"};
+        String json = new Gson().toJson(arrayOfNumbers);
+        System.out.println(json);
+
+        String tags = "[Word1,Word2,words 3,Words 4]";
+        String[] tagsStringsArray = new Gson().fromJson(json, String[].class);
+        Arrays.stream(tagsStringsArray).forEach(System.out::println);
 
     }
 }

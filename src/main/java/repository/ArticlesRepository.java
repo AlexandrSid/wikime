@@ -11,4 +11,6 @@ public interface ArticlesRepository {
     List<Article> getFilteredByTags(List<aTag> tags);
     Article getById (int id);
     boolean delete(int id);
+
+    boolean update(Article article);
 }
