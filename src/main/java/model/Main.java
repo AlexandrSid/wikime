@@ -47,5 +47,6 @@ public class Main {
         String[] tagsStringsArray = new Gson().fromJson(json, String[].class);
         Arrays.stream(tagsStringsArray).forEach(System.out::println);
 
+
     }
 }

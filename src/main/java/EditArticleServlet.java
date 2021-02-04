@@ -39,7 +39,6 @@ public class EditArticleServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setCharacterEncoding("UTF-8");
-
 //        System.out.println("doPost@EditArticleServlet with req params:");
 //        req.getParameterMap().entrySet().stream().map(e -> e.getKey().toString() + " " + req.getParameter(e.getKey())).forEach(System.out::println);
         InMemoryArticlesRepository instance = InMemoryArticlesRepository.getInstance();
