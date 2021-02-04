@@ -17,35 +17,52 @@ public class EditArticleServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-            System.out.println("doGet@EditArticleServlet with req params:");
-            req.getParameterMap().entrySet().stream().map(e->e.getKey().toString() + " " + req.getParameter(e.getKey())).forEach(System.out::println);
-        Integer id = Integer.valueOf(req.getParameter("id"));
-        if (id != null) {
+//        System.out.println("doGet@EditArticleServlet with req params:");
+//        req.getParameterMap().entrySet().stream().map(e -> e.getKey().toString() + " " + req.getParameter(e.getKey())).forEach(System.out::println);
+        String idFromReq = req.getParameter("id");
+        Article article;
+        if (idFromReq != null) {
+            Integer id = Integer.valueOf(idFromReq);
             System.out.println(id);
             InMemoryArticlesRepository instance = InMemoryArticlesRepository.getInstance();
-            Article article = instance.getById(id);
+            article = instance.getById(id);
             System.out.println(article);
-            req.setAttribute("article", article);
+        } else {
+            article = new Article();
+            article.setId(0);
         }
+        req.setAttribute("article", article);
+
         getServletContext().getRequestDispatcher("/addArticle.jsp").forward(req, resp);
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-            System.out.println("doPost@EditArticleServlet with req params:");
-            req.getParameterMap().entrySet().stream().map(e->e.getKey().toString() + " " + req.getParameter(e.getKey())).forEach(System.out::println);
+        req.setCharacterEncoding("UTF-8");
+
+//        System.out.println("doPost@EditArticleServlet with req params:");
+//        req.getParameterMap().entrySet().stream().map(e -> e.getKey().toString() + " " + req.getParameter(e.getKey())).forEach(System.out::println);
         InMemoryArticlesRepository instance = InMemoryArticlesRepository.getInstance();
         int id = Integer.valueOf(req.getParameter("id"));
         String title = req.getParameter("title");
         String tags = req.getParameter("tags");
         String text = req.getParameter("text");
-        System.out.println(id);
-        System.out.println(title);
-        System.out.println(tags);
-        System.out.println(text);
-        Article article = ArticleUtil.constructAndReturn(id,title,tags,text);
-        instance.update(article);
-        resp.sendRedirect("article?id=" + id);
 
+        Article article = ArticleUtil.constructAndReturn(id, title, tags, text);
+
+        if (title.length() < 1 && tags.length() <= 2 && text.length() <= 2) {//если все поля пусты
+            if (id != 0) {//и сообщение не новое
+                instance.delete(article.getId());
+            }
+            resp.sendRedirect("articles");
+        } else {
+            if (id != 0) {
+                instance.update(article);
+            } else {
+                instance.add(article);
+                id = article.getId();
+            }
+            resp.sendRedirect("article?id=" + id);
+        }
     }
 }

@@ -17,7 +17,10 @@
         </ls>
     </c:forEach>
     <br>
-    <%= request.getAttribute("message")%>
+<%--    <%= request.getAttribute("message")%>--%>
 </center>
+<form method="get" action="/wikime/new">
+    <button type="submit">New</button>
+</form>
 </body>
 </html>

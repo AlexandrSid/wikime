@@ -62,7 +62,7 @@ public class InMemoryArticlesRepository implements ArticlesRepository {
 
     @Override
     public boolean update(Article article) {
-        articlesList.remove(article.getId());
-        return articlesList.add(article);
+        delete(article.getId());
+        return add(article);
     }
 }

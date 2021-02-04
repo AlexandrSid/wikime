@@ -16,25 +16,38 @@
     <title>Title</title>
 </head>
 <body>
-
-<form method="get" action="/wikime/edit" >
-    <input type="hidden" name="id" value="${article.id}" >
-    ${out.print(article.id)}
-    <button type="submit" value="${article.id}">Edit</button>
-</form>
-
-<form method="post" name="delete">
-    <button type="submit" value="delete">Delete</button>
-</form>
+<table>
+    <tr>
+        <td>
+            <form action="/wikime">
+                <button type="submit">Main</button>
+            </form>
+        </td>
+        <td>
+            <form method="get" action="/wikime/articles">
+                <button type="submit">Articles</button>
+            </form>
+        </td>
+        <td>
+            <form method="get" action="/wikime/edit">
+                <input type="hidden" name="id" value="${article.id}">
+                ${out.print(article.id)}
+                <button type="submit" value="${article.id}">Edit</button>
+            </form>
+        </td>
+        <td>
+            <form method="post" name="delete">
+                <button type="submit" value="delete">Delete</button>
+            </form>
+        </td>
+    </tr>
+</table>
+<center>
 <h3>${article.header}</h3>
-<br>
+</center>
 <c:forEach items="${article.tags}" var="tag">
-
     ${tag.getTag()}
-
-
 </c:forEach>
-
 <br>
 ${article.paragraphs}
 </body>
