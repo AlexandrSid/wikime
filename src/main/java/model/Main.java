@@ -2,7 +2,6 @@ package model;
 
 import com.google.gson.Gson;
 import repository.ArticlesRepository;
-import repository.InMemoryArticlesRepository;
 
 import java.sql.*;
 import java.util.*;
@@ -10,9 +9,9 @@ import java.util.*;
 public class Main {
     //не уверен, что данный класс лучше всего подходит для этого,
     // но чёт ничего более подходящего в проекте пока нет
-    public static final void initializeRepo(ArticlesRepository repository) {
+    public static void initializeRepo(ArticlesRepository repository) {
         repository.add(new Article(
-                new HashSet<aTag>(Arrays.asList(
+                new HashSet<>(Arrays.asList(
                         new aTag("tag1"),
                         new aTag("tag2"),
                         new aTag("tag4"))
@@ -23,7 +22,7 @@ public class Main {
 
 
         repository.add(new Article(
-                new HashSet<aTag>(Arrays.asList(
+                new HashSet<>(Arrays.asList(
                         new aTag("tag1"),
                         new aTag("tag3"),
                         new aTag("tag4"))
@@ -49,7 +48,7 @@ public class Main {
 
         try {
             cleanDB();
-//            playSQL();
+            playSQL();
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
@@ -85,7 +84,7 @@ public class Main {
 //            }
 
             Article article9 = new Article(
-                    new HashSet<aTag>(Arrays.asList(
+                    new HashSet<>(Arrays.asList(
                             new aTag("tag1"),
                             new aTag("tag3"),
                             new aTag("tag4"))
@@ -95,7 +94,7 @@ public class Main {
             );
 
             Article article1 = new Article(
-                    new HashSet<aTag>(Arrays.asList(
+                    new HashSet<>(Arrays.asList(
                             new aTag("tag1"),
                             new aTag("tag2"),
                             new aTag("tag4"))
@@ -109,6 +108,9 @@ public class Main {
 
             Article articleFromTable = getArticleFromTable(statement, 1720838266);
             System.out.println(articleFromTable);
+            List<Article> articles = getArticles(statement);
+            articles.forEach(System.out::println);
+
         }
     }
 
@@ -136,7 +138,7 @@ public class Main {
         }
     }
 
-    private static Article getArticleFromTable(Statement statement, int id) throws SQLException {
+    private static Article getArticleFromTable(Statement statement, int id){
         final String getArticleById = "select * from articles where id=%d";
         final String getTagsByArticleID = "select * from tags where id in (select tag_id from tags_connector where article_id=%d)";
 
@@ -145,7 +147,7 @@ public class Main {
             String title = null;
             String textGson = null;
             while (resultSet.next()) {//doesn't work wo .next()
-                int anInt = resultSet.getInt(1);
+//                int anInt = resultSet.getInt(1);
                 title = resultSet.getString("title");
                 textGson = resultSet.getString("text");
             }
@@ -165,5 +167,35 @@ public class Main {
         } catch (SQLException e) {
             return null;
         }
+    }
+
+    private static List<Article> getArticles(Statement statement) throws SQLException {//returns articles with no text for showing in main menu and tag searching
+        Map<Integer, Article> conveyor = new HashMap<>();
+
+        ResultSet rs = statement.executeQuery("select id, title from articles");
+
+        int id;
+        String title;
+        //collect Articles wo tags and text
+        while (rs.next()) {
+            id = rs.getInt("id");
+            title = rs.getString("title");
+            Article article = new Article(new HashSet<>(), title, Collections.EMPTY_LIST);
+            article.setId(id);
+            conveyor.put(article.getId(), article);
+        }
+        //extracting tags and join them to articles in result
+        final String bothIDandTagBodyQuery = "select article_id, tag_id, tags.tag_body from tags_connector left join tags on tags_connector.tag_id = tags.id order by article_id";
+        rs = statement.executeQuery(bothIDandTagBodyQuery);
+        while (rs.next()) {
+            int article_id = rs.getInt("article_id");
+            int tag_id = rs.getInt(2);
+            String tag_body = rs.getString("tag_body");
+            aTag tag = new aTag(tag_body);
+            if (tag.getId() != tag_id)
+                System.out.format("TagID import Error. Imported fromDB: %d Generated: %d \n", tag_id, tag.getId());
+            conveyor.get(article_id).getTags().add(tag);
+        }
+        return new ArrayList<>(conveyor.values());
     }
 }
