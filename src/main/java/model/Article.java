@@ -4,6 +4,7 @@ import lombok.*;
 import lombok.experimental.FieldNameConstants;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 @Data
@@ -21,5 +22,18 @@ public class Article {
         this.header = header;
         this.paragraphs = paragraphs;
         this.id = this.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Article article = (Article) o;
+        return Objects.equals(tags, article.tags) && header.equals(article.header) && Objects.equals(paragraphs, article.paragraphs);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(tags, header, paragraphs);
     }
 }
