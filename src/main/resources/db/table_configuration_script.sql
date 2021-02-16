@@ -45,3 +45,4 @@ create table tags_connector
 alter table tags_connector
     owner to postgres;
 
+
