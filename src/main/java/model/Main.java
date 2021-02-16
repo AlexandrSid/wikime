@@ -67,13 +67,24 @@ public class Main {
 //        String username = resources.getString("database.username");
 //        String password = resources.getString("database.password");
 
-        Connection connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
+        try (Connection connection = DriverManager.getConnection(URL, USERNAME, PASSWORD)) {
+            Statement statement = connection.createStatement();
+//            statement.executeQuery("insert into tags (id, tags_gson) values (3, '[3,4,5]')");
+//            statement.executeUpdate("insert into tags (tags_gson) values ('[3,4,5]')");
+//            statement.executeUpdate("insert into tags (tags_gson) values ('[6,7,8]')");
+//            statement.executeUpdate("update tags (tags_gson) values ('[6,7,8]') where id=7" );
+//            boolean execute = statement.execute("insert into tags (tags_gson) values ('[6,7,8,13,23,44,1212]')");
+//            boolean execute = statement.execute("insert into tags (tags_gson) values ('[23,44,1212]')");
+//            ResultSet resultSet = statement.executeQuery("select * from tags");
+            String query = "select * from tags";
+            ResultSet resultSet = statement.executeQuery(query);
+            while (resultSet.next()){
+                final int anInt = resultSet.getInt("id");
+                final String string = resultSet.getString(2);
+                System.out.println(anInt + " -> " + string);
 
-        Statement statement = connection.createStatement();
-
-
-        statement.close();
-        connection.close();
+            }
+        }
     }
 
 
