@@ -23,7 +23,7 @@ public class InMemoryArticlesRepository implements ArticlesRepository {
         return repository;
     }
 
-    public static InMemoryArticlesRepository getInstance() {
+    public static ArticlesRepository getInstance() {
         return instance;
     }
 

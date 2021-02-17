@@ -2,6 +2,7 @@ package model;
 
 import com.google.gson.Gson;
 import repository.ArticlesRepository;
+import repository.DBArticleRepository;
 
 import java.sql.*;
 import java.util.*;
@@ -45,13 +46,16 @@ public class Main {
 //        String tags = "[Word1,Word2,words 3,Words 4]";
 //        String[] tagsStringsArray = new Gson().fromJson(json, String[].class);
 //        Arrays.stream(tagsStringsArray).forEach(System.out::println);
-
         try {
             cleanDB();
-            playSQL();
+//            playSQL();
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
+
+        DBArticleRepository repository = (DBArticleRepository) ArticlesRepository.getRepository();
+        repository.add(article1);
+        repository.add(article9);
 
     }
 
@@ -83,25 +87,6 @@ public class Main {
 //
 //            }
 
-            Article article9 = new Article(
-                    new HashSet<>(Arrays.asList(
-                            new aTag("tag1"),
-                            new aTag("tag3"),
-                            new aTag("tag4"))
-                    ),
-                    "Article 9",
-                    Arrays.asList("Word1", "Word2", "words 3", "Words 4")
-            );
-
-            Article article1 = new Article(
-                    new HashSet<>(Arrays.asList(
-                            new aTag("tag1"),
-                            new aTag("tag2"),
-                            new aTag("tag4"))
-                    ),
-                    "Article 1",
-                    Arrays.asList("String 1", "Strogmn2", "String 3", "Strogmn4")
-            );
 
             addArticleToTable(statement, article1);
             addArticleToTable(statement, article9);
@@ -110,7 +95,22 @@ public class Main {
             System.out.println(articleFromTable);
             List<Article> articles = getArticles(statement);
             articles.forEach(System.out::println);
+            System.out.println(removeArticleByID(statement, 1720838266));
 
+            Article article1edited = new Article(
+                    new HashSet<>(Arrays.asList(
+                            new aTag("tag3"),
+                            new aTag("tag4"),
+                            new aTag("tag6"))
+                    ),
+                    "Article 1",
+                    Arrays.asList("word 1", "words words", "String-3", "Strogmn_-_4")
+            );
+//            int editedId = article1.getId();
+            int editedId = 42;
+            article1edited.setId(editedId);
+            updateArticle(statement, article1edited);
+            System.out.println(getArticleFromTable(statement, article1.getId()));
         }
     }
 
@@ -123,22 +123,27 @@ public class Main {
         }
     }
 
-    private static void addArticleToTable(Statement statement, Article article) throws SQLException {
+    private static boolean addArticleToTable(Statement statement, Article article){
         final String addArticle = "insert into articles (id, title, text) values (%d, '%s', '%s')";
         final String addTag = "insert into tags (id, tag_body) values (%d, '%s') on conflict do nothing";
         final String addRelations = "insert into tags_connector (tag_id, article_id) values (%d, %d) on conflict do nothing";
 
-        Gson gson = new Gson();
-        String articlesTableQuery = String.format(addArticle, article.getId(), article.getHeader(), gson.toJson(article.getParagraphs()));
-        statement.executeUpdate(articlesTableQuery);
-        Set<aTag> tags = article.getTags();
-        for (aTag tag : tags) {
-            statement.executeUpdate(String.format(addTag, tag.getId(), tag.getTag()));
-            statement.executeUpdate(String.format(addRelations, tag.getId(), article.getId()));
+        try {
+            Gson gson = new Gson();
+            String articlesTableQuery = String.format(addArticle, article.getId(), article.getHeader(), gson.toJson(article.getParagraphs()));
+            statement.executeUpdate(articlesTableQuery);
+            Set<aTag> tags = article.getTags();
+            for (aTag tag : tags) {
+                statement.executeUpdate(String.format(addTag, tag.getId(), tag.getTag()));
+                statement.executeUpdate(String.format(addRelations, tag.getId(), article.getId()));
+            }
+            return true;
+        } catch (SQLException e) {
+            return false;
         }
     }
 
-    private static Article getArticleFromTable(Statement statement, int id){
+    private static Article getArticleFromTable(Statement statement, int id) {
         final String getArticleById = "select * from articles where id=%d";
         final String getTagsByArticleID = "select * from tags where id in (select tag_id from tags_connector where article_id=%d)";
 
@@ -163,7 +168,9 @@ public class Main {
             }
             Gson gson = new Gson();
             List<String> paragraphs = Arrays.asList(gson.fromJson(textGson, String[].class));
-            return new Article(tags, title, paragraphs);
+            Article article = new Article(tags, title, paragraphs);
+            article.setId(id);//вообще не нравится способ генерации ИДшника...
+            return article;
         } catch (SQLException e) {
             return null;
         }
@@ -198,4 +205,45 @@ public class Main {
         }
         return new ArrayList<>(conveyor.values());
     }
+
+    private static boolean removeArticleByID(Statement statement, int id) {
+        final String deleteQuery = "delete from articles where id=%d";
+        //tags connector should delete automaticaly.
+        try {
+            statement.executeUpdate(String.format(deleteQuery, id));
+            return true;
+        } catch (SQLException e) {
+            System.err.println(e);
+            return false;
+        }
+    }
+
+    private static boolean updateArticle(Statement statement, Article article) throws SQLException {
+        //не оптимально, но просто для понимания.
+        int id = article.getId();
+        final boolean removed = removeArticleByID(statement, id);
+        final boolean added = addArticleToTable(statement, article);
+        return added & removed;
+
+    }
+
+    static Article article9 = new Article(
+            new HashSet<>(Arrays.asList(
+                    new aTag("tag1"),
+                    new aTag("tag3"),
+                    new aTag("tag4"))
+            ),
+            "Article 9",
+            Arrays.asList("Word1", "Word2", "words 3", "Words 4")
+    );
+
+    static Article article1 = new Article(
+            new HashSet<>(Arrays.asList(
+                    new aTag("tag1"),
+                    new aTag("tag2"),
+                    new aTag("tag4"))
+            ),
+            "Article 1",
+            Arrays.asList("String 1", "Strogmn2", "String 3", "Strogmn4")
+    );
 }

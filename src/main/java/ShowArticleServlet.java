@@ -1,5 +1,5 @@
 import model.Article;
-import repository.InMemoryArticlesRepository;
+import repository.ArticlesRepository;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -19,7 +19,7 @@ public class ShowArticleServlet extends HttpServlet {
         System.out.println("doGet@ShowArticleServlet with req params:");
         req.getParameterMap().entrySet().stream().map(e->e.getKey().toString() + " " + e.getValue().toString()).forEach(System.out::println);
         Integer id = Integer.valueOf(req.getParameter("id"));
-        InMemoryArticlesRepository instance = InMemoryArticlesRepository.getInstance();
+        ArticlesRepository instance = ArticlesRepository.getRepository();
         Article article = instance.getById(id);
         req.setAttribute("article", article);
         RequestDispatcher view = req.getRequestDispatcher("article.jsp");
@@ -29,7 +29,7 @@ public class ShowArticleServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         Integer id = Integer.valueOf(req.getParameter("id"));
-        InMemoryArticlesRepository repository = InMemoryArticlesRepository.getInstance();
+        ArticlesRepository repository = ArticlesRepository.getRepository();
         repository.delete(id);
         resp.sendRedirect("/wikime/articles");
     }

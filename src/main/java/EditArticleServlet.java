@@ -1,5 +1,5 @@
 import model.Article;
-import repository.InMemoryArticlesRepository;
+import repository.ArticlesRepository;
 import util.ArticleUtil;
 
 import javax.servlet.ServletException;
@@ -24,7 +24,7 @@ public class EditArticleServlet extends HttpServlet {
         if (idFromReq != null) {
             Integer id = Integer.valueOf(idFromReq);
             System.out.println(id);
-            InMemoryArticlesRepository instance = InMemoryArticlesRepository.getInstance();
+            ArticlesRepository instance = ArticlesRepository.getRepository();
             article = instance.getById(id);
             System.out.println(article);
         } else {
@@ -41,7 +41,7 @@ public class EditArticleServlet extends HttpServlet {
         req.setCharacterEncoding("UTF-8");
 //        System.out.println("doPost@EditArticleServlet with req params:");
 //        req.getParameterMap().entrySet().stream().map(e -> e.getKey().toString() + " " + req.getParameter(e.getKey())).forEach(System.out::println);
-        InMemoryArticlesRepository instance = InMemoryArticlesRepository.getInstance();
+        ArticlesRepository instance = ArticlesRepository.getRepository();
         int id = Integer.valueOf(req.getParameter("id"));
         String title = req.getParameter("title");
         String tags = req.getParameter("tags");
