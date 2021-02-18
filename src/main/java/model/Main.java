@@ -49,7 +49,7 @@ public class Main {
 //        Arrays.stream(tagsStringsArray).forEach(System.out::println);
         try {
             cleanDB();
-//            playSQL();
+            playSQL();
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
@@ -97,6 +97,9 @@ public class Main {
         System.out.println(repository.getFilteredByTags(tag3));
         System.out.println("\n---------------\n");
         System.out.println(repository.getById(article1.getId()));
+//        repository.delete(-88853146);
+//        DBArticleRepository dbArticleRepository = (DBArticleRepository) repository;
+//        dbArticleRepository.removeOutOfUseTags();
 
 
     }

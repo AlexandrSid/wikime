@@ -131,6 +131,7 @@ public class DBArticleRepository implements ArticlesRepository {
         //tags connector should delete automaticaly.
         try {
             statement.executeUpdate(String.format(deleteQuery, id));
+            removeOutOfUseTags();
             return true;
         } catch (SQLException e) {
             System.err.println(e);
@@ -147,6 +148,16 @@ public class DBArticleRepository implements ArticlesRepository {
         final boolean added = add(article);
         return added & removed;
 
+    }
+
+    public void removeOutOfUseTags(){//starts every time when article deleted or updated
+        Statement statement = connectionHolder.getStatement();
+        final String query = "delete from tags where id in (select id from tags left join tags_connector on tags_connector.tag_id = tags.id where tags_connector.article_id is null)";
+        try {
+            statement.executeUpdate(query);
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
     }
 
 
