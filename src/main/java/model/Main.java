@@ -30,6 +30,7 @@ public class Main {
                 ),
                 "Article 6",
                 Arrays.asList("Word1", "Word2", "words 3", "Words 4")
+
         ));
 
     }
@@ -53,9 +54,6 @@ public class Main {
             throwables.printStackTrace();
         }
 
-        DBArticleRepository repository = (DBArticleRepository) ArticlesRepository.getRepository();
-        repository.add(article1);
-        repository.add(article9);
 
     }
 
@@ -69,8 +67,8 @@ public class Main {
 //        String username = resources.getString("database.username");
 //        String password = resources.getString("database.password");
 
-        try (Connection connection = DriverManager.getConnection(URL, USERNAME, PASSWORD)) {
-            Statement statement = connection.createStatement();
+//        try (Connection connection = DriverManager.getConnection(URL, USERNAME, PASSWORD)) {
+//            Statement statement = connection.createStatement();
 //            statement.executeQuery("insert into tags (id, tags_gson) values (3, '[3,4,5]')");
 //            statement.executeUpdate("insert into tags (tags_gson) values ('[3,4,5]')");
 //            statement.executeUpdate("insert into tags (tags_gson) values ('[6,7,8]')");
@@ -84,34 +82,23 @@ public class Main {
 //                final int anInt = resultSet.getInt("id");
 //                final String string = resultSet.getString(2);
 //                System.out.println(anInt + " -> " + string);
-//
 //            }
 
+        //playing with DB through Designed-for-server tools.
+        ArticlesRepository repository = ArticlesRepository.getRepository();
+        List<Article> allEmpty = repository.getAll();
+        System.out.println(allEmpty);
+        System.out.println("\n---------------\n");
+        repository.add(article1);
+        repository.add(article9);
+        System.out.println(repository.getAll());
+        System.out.println("\n---------------\n");
+        List<aTag> tag3 = Collections.singletonList(new aTag("tag3"));
+        System.out.println(repository.getFilteredByTags(tag3));
+        System.out.println("\n---------------\n");
+        System.out.println(repository.getById(article1.getId()));
 
-            addArticleToTable(statement, article1);
-            addArticleToTable(statement, article9);
 
-            Article articleFromTable = getArticleFromTable(statement, 1720838266);
-            System.out.println(articleFromTable);
-            List<Article> articles = getArticles(statement);
-            articles.forEach(System.out::println);
-            System.out.println(removeArticleByID(statement, 1720838266));
-
-            Article article1edited = new Article(
-                    new HashSet<>(Arrays.asList(
-                            new aTag("tag3"),
-                            new aTag("tag4"),
-                            new aTag("tag6"))
-                    ),
-                    "Article 1",
-                    Arrays.asList("word 1", "words words", "String-3", "Strogmn_-_4")
-            );
-//            int editedId = article1.getId();
-            int editedId = 42;
-            article1edited.setId(editedId);
-            updateArticle(statement, article1edited);
-            System.out.println(getArticleFromTable(statement, article1.getId()));
-        }
     }
 
     private static void cleanDB() throws SQLException {
@@ -123,109 +110,6 @@ public class Main {
         }
     }
 
-    private static boolean addArticleToTable(Statement statement, Article article){
-        final String addArticle = "insert into articles (id, title, text) values (%d, '%s', '%s')";
-        final String addTag = "insert into tags (id, tag_body) values (%d, '%s') on conflict do nothing";
-        final String addRelations = "insert into tags_connector (tag_id, article_id) values (%d, %d) on conflict do nothing";
-
-        try {
-            Gson gson = new Gson();
-            String articlesTableQuery = String.format(addArticle, article.getId(), article.getHeader(), gson.toJson(article.getParagraphs()));
-            statement.executeUpdate(articlesTableQuery);
-            Set<aTag> tags = article.getTags();
-            for (aTag tag : tags) {
-                statement.executeUpdate(String.format(addTag, tag.getId(), tag.getTag()));
-                statement.executeUpdate(String.format(addRelations, tag.getId(), article.getId()));
-            }
-            return true;
-        } catch (SQLException e) {
-            return false;
-        }
-    }
-
-    private static Article getArticleFromTable(Statement statement, int id) {
-        final String getArticleById = "select * from articles where id=%d";
-        final String getTagsByArticleID = "select * from tags where id in (select tag_id from tags_connector where article_id=%d)";
-
-        try {
-            ResultSet resultSet = statement.executeQuery(String.format(getArticleById, id));
-            String title = null;
-            String textGson = null;
-            while (resultSet.next()) {//doesn't work wo .next()
-//                int anInt = resultSet.getInt(1);
-                title = resultSet.getString("title");
-                textGson = resultSet.getString("text");
-            }
-
-            resultSet = statement.executeQuery(String.format(getTagsByArticleID, id));
-            Set<aTag> tags = new HashSet<>();
-            while (resultSet.next()) {
-                aTag tag = new aTag(resultSet.getString("tag_body"));
-                tags.add(tag);
-                int tagIDfromDB = resultSet.getInt("id");
-                if (tagIDfromDB != tag.getId())
-                    System.out.format("TagID import Error. Imported fromDB: %d Generated: %d \n", tagIDfromDB, tag.getId());
-            }
-            Gson gson = new Gson();
-            List<String> paragraphs = Arrays.asList(gson.fromJson(textGson, String[].class));
-            Article article = new Article(tags, title, paragraphs);
-            article.setId(id);//вообще не нравится способ генерации ИДшника...
-            return article;
-        } catch (SQLException e) {
-            return null;
-        }
-    }
-
-    private static List<Article> getArticles(Statement statement) throws SQLException {//returns articles with no text for showing in main menu and tag searching
-        Map<Integer, Article> conveyor = new HashMap<>();
-
-        ResultSet rs = statement.executeQuery("select id, title from articles");
-
-        int id;
-        String title;
-        //collect Articles wo tags and text
-        while (rs.next()) {
-            id = rs.getInt("id");
-            title = rs.getString("title");
-            Article article = new Article(new HashSet<>(), title, Collections.EMPTY_LIST);
-            article.setId(id);
-            conveyor.put(article.getId(), article);
-        }
-        //extracting tags and join them to articles in result
-        final String bothIDandTagBodyQuery = "select article_id, tag_id, tags.tag_body from tags_connector left join tags on tags_connector.tag_id = tags.id order by article_id";
-        rs = statement.executeQuery(bothIDandTagBodyQuery);
-        while (rs.next()) {
-            int article_id = rs.getInt("article_id");
-            int tag_id = rs.getInt(2);
-            String tag_body = rs.getString("tag_body");
-            aTag tag = new aTag(tag_body);
-            if (tag.getId() != tag_id)
-                System.out.format("TagID import Error. Imported fromDB: %d Generated: %d \n", tag_id, tag.getId());
-            conveyor.get(article_id).getTags().add(tag);
-        }
-        return new ArrayList<>(conveyor.values());
-    }
-
-    private static boolean removeArticleByID(Statement statement, int id) {
-        final String deleteQuery = "delete from articles where id=%d";
-        //tags connector should delete automaticaly.
-        try {
-            statement.executeUpdate(String.format(deleteQuery, id));
-            return true;
-        } catch (SQLException e) {
-            System.err.println(e);
-            return false;
-        }
-    }
-
-    private static boolean updateArticle(Statement statement, Article article) throws SQLException {
-        //не оптимально, но просто для понимания.
-        int id = article.getId();
-        final boolean removed = removeArticleByID(statement, id);
-        final boolean added = addArticleToTable(statement, article);
-        return added & removed;
-
-    }
 
     static Article article9 = new Article(
             new HashSet<>(Arrays.asList(
@@ -235,6 +119,7 @@ public class Main {
             ),
             "Article 9",
             Arrays.asList("Word1", "Word2", "words 3", "Words 4")
+//            Collections.emptyList()
     );
 
     static Article article1 = new Article(
@@ -245,5 +130,17 @@ public class Main {
             ),
             "Article 1",
             Arrays.asList("String 1", "Strogmn2", "String 3", "Strogmn4")
+//            Collections.emptyList()
+
+    );
+
+    static Article article1edited = new Article(
+            new HashSet<>(Arrays.asList(
+                    new aTag("tag3"),
+                    new aTag("tag4"),
+                    new aTag("tag6"))
+            ),
+            "Article 1",
+            Arrays.asList("word 1", "words words", "String-3", "Strogmn_-_4")
     );
 }

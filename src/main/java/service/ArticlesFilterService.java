@@ -22,7 +22,6 @@ public class ArticlesFilterService {
     private final ArticlesRepository repository = ArticlesRepository.getRepository();
 
 
-    //этот кошмар переделаю
     public List<Article> getAllArticles(){
         return repository.getAll();
     }

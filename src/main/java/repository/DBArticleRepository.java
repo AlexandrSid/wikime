@@ -10,13 +10,10 @@ import java.util.stream.Collectors;
 
 public class DBArticleRepository implements ArticlesRepository {
 
-    private static final String URL = "jdbc:postgresql://localhost:5432/wikime_test";
-    private static final String USERNAME = "postgres";
-    private static final String PASSWORD = "admin";
-    private ConnectionHolder connectionHolder;
+    private final ConnectionHolder connectionHolder = ConnectionHolder.getInstance();
 
     public static ArticlesRepository getInstance() {
-        if (instance==null){
+        if (instance == null) {
             instance = new DBArticleRepository();
         }
         return instance;
@@ -25,7 +22,6 @@ public class DBArticleRepository implements ArticlesRepository {
     private static ArticlesRepository instance;
 
     private DBArticleRepository() {
-        connectionHolder = new ConnectionHolder();
     }
 
     @Override
@@ -40,7 +36,7 @@ public class DBArticleRepository implements ArticlesRepository {
             String articlesTableQuery = String.format(addArticle, article.getId(), article.getHeader(), gson.toJson(article.getParagraphs()));
             statement.executeUpdate(articlesTableQuery);
             Set<aTag> tags = article.getTags();
-            for (aTag tag : tags) {
+            for (aTag tag : tags) {//возможно единственное место в существующей логике, где был бы уместнее PreparedStatement
                 statement.executeUpdate(String.format(addTag, tag.getId(), tag.getTag()));
                 statement.executeUpdate(String.format(addRelations, tag.getId(), article.getId()));
             }
@@ -82,7 +78,7 @@ public class DBArticleRepository implements ArticlesRepository {
             }
             return new ArrayList<>(conveyor.values());
         } catch (SQLException e) {
-            return null;
+            return Collections.emptyList();
         }
     }
 
@@ -154,36 +150,4 @@ public class DBArticleRepository implements ArticlesRepository {
     }
 
 
-    //TODO
-    // по идее эта штука должна держать коннекшн открытым и закрывать его при заершении программы либо по таймауту.
-    // но это не написано
-
-    private static class ConnectionHolder {
-        private Connection connection;
-        private Statement statement;
-
-
-        public Statement getStatement() {
-            System.out.println("returning statement");
-            return statement;
-        }
-
-        public ConnectionHolder() {
-            try {
-                riseConnection();
-                System.out.println("connection rised");
-            } catch (SQLException throwables) {
-                throwables.printStackTrace();
-            }
-        }
-
-        private void riseConnection() throws SQLException {
-            if (connection==null || connection.isClosed())
-                connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
-            if (statement==null || statement.isClosed())
-                statement = connection.createStatement();
-        }
-
-
-    }
 }

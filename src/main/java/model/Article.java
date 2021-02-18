@@ -21,7 +21,7 @@ public class Article {
         this.tags = tags;
         this.header = header;
         this.paragraphs = paragraphs;
-        this.id = this.hashCode();
+        this.id = this.hashCode();//пока так и сохраняется в БД, что при первом апдейте делаает ID нерелевантным, думаю лучше будет сделать генерацию идшника в БД и его возврат при добавлении
     }
 
     @Override
