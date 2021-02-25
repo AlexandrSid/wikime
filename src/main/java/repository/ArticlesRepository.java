@@ -13,4 +13,9 @@ public interface ArticlesRepository {
     boolean delete(int id);
 
     boolean update(Article article);
+
+    static ArticlesRepository getRepository(){
+//        return InMemoryArticlesRepository.getInstance();
+        return DBArticleRepository.getInstance();
+    }
 }

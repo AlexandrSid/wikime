@@ -19,10 +19,9 @@ public class ArticlesFilterService {
         return service;
     }
 
-    private final ArticlesRepository repository = InMemoryArticlesRepository.getInstance();
+    private final ArticlesRepository repository = ArticlesRepository.getRepository();
 
 
-    //этот кошмар переделаю
     public List<Article> getAllArticles(){
         return repository.getAll();
     }

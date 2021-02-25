@@ -13,7 +13,7 @@
 <jsp:useBean id="article" scope="request" type="model.Article"/>
 
 <head>
-    <title>Title</title>
+    <title>${article.header}</title>
 </head>
 <body>
 <table>

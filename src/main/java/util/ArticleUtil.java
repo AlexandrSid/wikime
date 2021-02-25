@@ -29,8 +29,8 @@ public class ArticleUtil {
 //        System.out.println(text);
         if(tags.length()<2){tags = "  ";}
         if(text.length()<2){text = "  ";}
-        String[] tagsStringsArray = tags.substring(1, tags.length() - 1).split(",");//корявенько
-        String[] paragraphs = text.substring(1, text.length() - 1).split(",");
+        String[] tagsStringsArray = tags.substring(1, tags.length() - 1).split(", ");//корявенько
+        String[] paragraphs = text.substring(1, text.length() - 1).split(", ");//нужен нормальный шаблонизатор для фронта.
 //        String[] tagsStringsArray = new Gson().fromJson(tags, String[].class);//не работает
 //        String[] paragraphs = new Gson().fromJson(text, String[].class);//формат строк в джисоне должен быть с кавычками
 

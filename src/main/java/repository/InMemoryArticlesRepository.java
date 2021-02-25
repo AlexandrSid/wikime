@@ -19,11 +19,11 @@ public class InMemoryArticlesRepository implements ArticlesRepository {
 
     private static InMemoryArticlesRepository createAndInitializeRepo() {
         InMemoryArticlesRepository repository = new InMemoryArticlesRepository();
-        Main.initializeRepo(repository);
+//        Main.initializeRepo(repository);
         return repository;
     }
 
-    public static InMemoryArticlesRepository getInstance() {
+    public static ArticlesRepository getInstance() {
         return instance;
     }
 
