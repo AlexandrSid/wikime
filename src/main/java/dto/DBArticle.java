@@ -1,17 +1,16 @@
 package dto;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.Set;
 
+@Entity(name = "ARTICLES")
 @Data
 @NoArgsConstructor
-@Entity(name = "ARTICLES")
-public class DBArtilce {
-    @EqualsAndHashCode.Include
+public class DBArticle {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
@@ -19,8 +18,9 @@ public class DBArtilce {
     private String text;
     @ManyToMany
     @JoinTable(name = "article_tag",
-            joinColumns = {@JoinColumn(name = "artilce_id")},
+            joinColumns = {@JoinColumn(name = "article_id")},
             inverseJoinColumns = {@JoinColumn(name = "tag_id")})
-    private Set<DBTag> tags;
+    private Set<DBTag> tags = new HashSet<>();
+
 
 }
