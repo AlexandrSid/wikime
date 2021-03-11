@@ -61,7 +61,8 @@ public class EditArticleServlet extends HttpServlet {
                 instance.add(article);
                 id = article.getId();
             }
-            resp.sendRedirect("article?id=" + id);
+//            resp.sendRedirect("article?id=" + id);
+            resp.sendRedirect("articles");
         }
     }
 }

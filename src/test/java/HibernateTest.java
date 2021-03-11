@@ -7,6 +7,7 @@ import org.hibernate.cfg.Configuration;
 import org.junit.*;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 public class HibernateTest {
@@ -67,8 +68,8 @@ public class HibernateTest {
 
     @Test
     public void testGet() {
-        DBArticle artilce = session.get(DBArticle.class, 4);
-        System.out.println("|||||||------->>>>>>> " + artilce);
+        DBArticle article = session.get(DBArticle.class, 4);
+        System.out.println("|||||||------->>>>>>> " + article);
 
         DBTag tag = session.get(DBTag.class, 2);
         tag.getArticles().forEach(System.out::println);
@@ -91,6 +92,7 @@ public class HibernateTest {
 //        List<DBArticle> articles =allQuery.getResultList();
 
         //а этот способ deprecated
+        //upd прочитал почему https://ru.stackoverflow.com/questions/965018/hibernate-%D1%80%D0%B0%D0%B7%D0%BD%D0%B8%D1%86%D0%B0-%D0%BC%D0%B5%D0%B6%D0%B4%D1%83-session-%D0%B8-entitymanager
         Criteria criteria = session.createCriteria(DBArticle.class);
 //        criteria.setMaxResults(100);
         List<DBArticle> articles = criteria.list();
@@ -119,7 +121,15 @@ public class HibernateTest {
 
         DBArticle article = session.get(DBArticle.class, 4);
         article.setText("There is new text of article " + article.getHeader());
-        session.save(article);
+        Set<DBTag> tags = article.getTags();
+        DBTag tag = tags.stream().findFirst().orElseGet(null);
+        String tagText = tag.getTag();
+        System.out.println(tagText);
+        tagText = "NewTegText";
+        tag.setTag(tagText);
+        session.update(tag);
+        session.update(article);
+        session.flush();
 
         articles = session.createQuery("select a from ARTICLES a", DBArticle.class).getResultList();
         articles.forEach(System.out::println);

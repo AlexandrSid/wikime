@@ -1,5 +1,6 @@
 package model;
 
+import dto.DBTag;
 import lombok.Data;
 
 import java.util.Objects;
@@ -34,5 +35,10 @@ public class aTag {
     @Override
     public int hashCode() {
         return Objects.hash(tag);
+    }
+
+    public aTag(DBTag dbTag) {
+        this.id = dbTag.getId();
+        this.tag = dbTag.getTag();
     }
 }

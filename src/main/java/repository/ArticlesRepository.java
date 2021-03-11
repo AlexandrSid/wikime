@@ -16,6 +16,7 @@ public interface ArticlesRepository {
 
     static ArticlesRepository getRepository(){
 //        return InMemoryArticlesRepository.getInstance();
-        return DBArticleRepository.getInstance();
+//        return DBArticleRepository.getInstance();
+        return  HibernateRepository.getInstance();
     }
 }

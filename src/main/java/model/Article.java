@@ -1,11 +1,12 @@
 package model;
 
+import com.google.gson.Gson;
+import dto.DBArticle;
 import lombok.*;
 import lombok.experimental.FieldNameConstants;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Data
 @NoArgsConstructor
@@ -35,5 +36,12 @@ public class Article {
     @Override
     public int hashCode() {
         return Objects.hash(tags, header, paragraphs);
+    }
+
+    public Article(DBArticle dbArticle) {
+        this.id = dbArticle.getId();
+        this.header = dbArticle.getHeader();
+        this.paragraphs = Arrays.asList(new Gson().fromJson(dbArticle.getText(), String[].class));
+        this.tags = dbArticle.getTags().stream().map(aTag::new).collect(Collectors.toSet());
     }
 }
