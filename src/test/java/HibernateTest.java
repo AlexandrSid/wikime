@@ -1,3 +1,4 @@
+import com.sun.xml.bind.v2.TODO;
 import dto.DBArticle;
 import dto.DBTag;
 import org.hibernate.Criteria;
@@ -168,8 +169,11 @@ public class HibernateTest {
         DBArticle o = session.get(DBArticle.class, 14);
         System.out.println(o);
         Set<DBTag> tags1 = o.getTags();
+
+        //TODO это должно лечиться выставлением правильного CascadeType как мне кажется
         o.setTags(Collections.emptySet());
         tags1.forEach(t -> t.getArticles().remove(o));
+
         session.delete(o);
         session.flush();
         System.out.println("-----------delete complite");
