@@ -13,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 public class DBTag {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String tag;
     @ManyToMany(mappedBy = "tags", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
@@ -28,5 +28,9 @@ public class DBTag {
         return "DBTag{" +
                 "tag='" + tag + '\'' +
                 '}';
+    }
+
+    public DBTag(String tag) {
+        this.tag = tag;
     }
 }

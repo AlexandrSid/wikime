@@ -9,7 +9,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -38,7 +38,7 @@ public class HibernateRepository implements ArticlesRepository{
     public boolean add(Article article) {
         session.beginTransaction();
         DBArticle dbArticle = new DBArticle(article);
-        dbArticle.getTags().forEach(session::saveOrUpdate);
+        dbArticle.setTags(tagsAddIfExistReturn(dbArticle.getTags()));
         session.save(dbArticle);
         session.getTransaction().commit();
         return true;
@@ -56,7 +56,10 @@ public class HibernateRepository implements ArticlesRepository{
 
     @Override
     public List<Article> getFilteredByTags(List<aTag> tags) {
-        return tags.stream().map(aTag::getId).flatMap(this::getDBArticlesStreamByTag).distinct().map(Article::new).collect(Collectors.toList());
+        Set<DBTag> nonManagedTags = tags.stream().map(DBTag::new).collect(Collectors.toSet());
+        Set<DBTag> manageddbTags = tagsAddIfExistReturn(nonManagedTags);
+        List<Article> result = manageddbTags.stream().map(DBTag::getId).flatMap(this::getDBArticlesStreamByTag).distinct().map(Article::new).collect(Collectors.toList());
+        return result;
     }
 
     private Stream<DBArticle> getDBArticlesStreamByTag(Integer tagId) {
@@ -77,7 +80,10 @@ public class HibernateRepository implements ArticlesRepository{
     @Override
     public boolean delete(int id) {
         session.beginTransaction();
-        session.delete(session.get(DBArticle.class, id));
+        DBArticle article = session.get(DBArticle.class, id);
+        article.getTags().forEach(t -> t.getArticles().remove(article));
+        article.setTags(Collections.emptySet());
+        session.delete(article);
         session.getTransaction().commit();
         return true;
     }
@@ -86,11 +92,38 @@ public class HibernateRepository implements ArticlesRepository{
     public boolean update(Article article) {
         int id = article.getId();
         session.beginTransaction();
-        DBArticle dbArticle = new DBArticle(article);
-        dbArticle.setId(id);
-        dbArticle.getTags().forEach(session::merge);
-        session.merge(dbArticle);
+        DBArticle article2Update = session.get(DBArticle.class, id);
+        DBArticle articleFromFront = new DBArticle(article);
+        article2Update.setHeader(articleFromFront.getHeader());
+        article2Update.setText(articleFromFront.getText());
+        article2Update.setTags(tagsAddIfExistReturn(articleFromFront.getTags()));
+        session.update(article2Update);
         session.getTransaction().commit();
         return true;
+    }
+
+    //подробнее метод представлен в тестовом классе
+    public Set<DBTag> tagsAddIfExistReturn(Set<DBTag> tagsToAdd) {
+        Set<DBTag> result = new HashSet<>();
+
+        Criteria criteria = session.createCriteria(DBTag.class);
+        List<DBTag> existing = criteria.list();
+
+        if (existing.isEmpty()) {
+            tagsToAdd.forEach(session::persist);
+            result.addAll(tagsToAdd);
+        } else {
+            List<String> toAddBodies = tagsToAdd.stream().map(DBTag::getTag).collect(Collectors.toList());
+            List<String> existingBodies = existing.stream().map(DBTag::getTag).collect(Collectors.toList());
+
+            Map<Boolean, List<String>> newAndExisting = toAddBodies.stream().collect(Collectors.partitioningBy(existingBodies::contains));
+            final List<DBTag> newTagsToAdd = newAndExisting.get(false).stream().map(DBTag::new).collect(Collectors.toList());
+            newTagsToAdd.forEach(session::persist);
+            List<DBTag> existingPartToAdd = existing.stream().filter(dbt -> newAndExisting.get(true).contains(dbt.getTag())).collect(Collectors.toList());
+
+            result.addAll(existingPartToAdd);
+            result.addAll(newTagsToAdd);
+        }
+        return result;
     }
 }

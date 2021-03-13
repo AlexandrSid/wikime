@@ -6,9 +6,8 @@ import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.junit.*;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class HibernateTest {
 
@@ -35,7 +34,7 @@ public class HibernateTest {
     }
 
     @After
-    public void closeTransactionAndSession(){
+    public void closeTransactionAndSession() {
         session.getTransaction().commit();
         session.close();
     }
@@ -101,8 +100,77 @@ public class HibernateTest {
     }
 
     @Test
+    public void testGetByTags(){
+        session.getTransaction().commit();
+        session.beginTransaction();
+        List <String> tags = List.of("Tag0", "Tag2");
+
+        Criteria criteria = session.createCriteria(DBTag.class);
+        List<DBTag> list = criteria.list();
+
+        list.stream().map(t->t.getArticles() + " " + t.getTag()).forEach(System.out::println);
+        list.forEach(System.out::println);
+
+        final List<DBArticle> collect = list.stream().distinct()
+                .filter(t -> tags.contains(t.getTag()))
+                .flatMap(dbTag -> dbTag.getArticles().stream())
+                .collect(Collectors.toList());
+        System.out.println(collect);
+    }
+
+    @Test
+    public void updateArticle() {
+        List<DBArticle> articles = session.createQuery("select a from ARTICLES a", DBArticle.class).getResultList();
+        articles.forEach(System.out::println);
+
+        DBArticle article = session.get(DBArticle.class, 4);
+        article.setText("There is new text of article " + article.getHeader());
+        article.setHeader("There is new Header of article");
+        article.setTags(Set.copyOf(tagsAddIfExistReturn(new DBTag("completly_new_tag"), new DBTag("Tag0"))));
+        session.update(article);
+        session.flush();
+
+        articles = session.createQuery("select a from ARTICLES a", DBArticle.class).getResultList();
+        articles.forEach(System.out::println);
+    }
+
+    @Test
+    public void tagsAddIfNotExists() {
+        List<DBTag> result = new ArrayList<>();// это засунуть в новую или редактируемую статью при добавлении/обновлении
+
+        List<DBTag> tagsToAdd = List.of(new DBTag("Tag0"), new DBTag("Tag2"));
+        Criteria criteria = session.createCriteria(DBTag.class);
+        List<DBTag> existing = criteria.list();
+
+        if (existing.isEmpty()) {
+            tagsToAdd.forEach(session::persist);
+            result.addAll(tagsToAdd);
+        } else {
+            List<String> toAddBodies = tagsToAdd.stream().map(DBTag::getTag).collect(Collectors.toList());
+            List<String> existingBodies = existing.stream().map(DBTag::getTag).collect(Collectors.toList());
+
+            //теперь надо разделить toAddBodies на новые и имеющиеся.
+            Map<Boolean, List<String>> newAndExisting = toAddBodies.stream().collect(Collectors.partitioningBy(existingBodies::contains));
+//            newAndExisting.get(true);//existing
+//            newAndExisting.get(false);//new
+            final List<DBTag> newTagsToAdd = newAndExisting.get(false).stream().map(DBTag::new).collect(Collectors.toList());
+            newTagsToAdd.forEach(session::persist);
+            List<DBTag> existingPartToAdd = existing.stream().filter(dbt -> newAndExisting.get(true).contains(dbt.getTag())).collect(Collectors.toList());
+
+            result.addAll(existingPartToAdd);
+            result.addAll(newTagsToAdd);
+        }
+        result.forEach(bdT -> System.out.format("    ----    Persisted tag with DB_ID %d and Body of %s \n", bdT.getId(), bdT.getTag()));
+    }
+
+    @Test
     public void testDelete() {
-        session.delete(session.get(DBArticle.class, 4));
+        DBArticle o = session.get(DBArticle.class, 14);
+        System.out.println(o);
+        Set<DBTag> tags1 = o.getTags();
+        o.setTags(Collections.emptySet());
+        tags1.forEach(t -> t.getArticles().remove(o));
+        session.delete(o);
         session.flush();
         System.out.println("-----------delete complite");
 
@@ -114,28 +182,7 @@ public class HibernateTest {
         tags.forEach(System.out::println);
     }
 
-    @Test
-    public void updateArticle(){
-        List<DBArticle> articles = session.createQuery("select a from ARTICLES a", DBArticle.class).getResultList();
-        articles.forEach(System.out::println);
-
-        DBArticle article = session.get(DBArticle.class, 4);
-        article.setText("There is new text of article " + article.getHeader());
-        Set<DBTag> tags = article.getTags();
-        DBTag tag = tags.stream().findFirst().orElseGet(null);
-        String tagText = tag.getTag();
-        System.out.println(tagText);
-        tagText = "NewTegText";
-        tag.setTag(tagText);
-        session.update(tag);
-        session.update(article);
-        session.flush();
-
-        articles = session.createQuery("select a from ARTICLES a", DBArticle.class).getResultList();
-        articles.forEach(System.out::println);
-    }
-
-    private void prepareDB(Session session){
+    private void prepareDB(Session session) {
         DBTag tag0 = new DBTag();
         tag0.setTag("Tag0");
         DBTag tag1 = new DBTag();
@@ -146,18 +193,44 @@ public class HibernateTest {
         DBArticle artilce1 = new DBArticle();
         artilce1.setHeader("Article1");
         artilce1.setText("Article 1 text is here");
-        artilce1.setTags(Set.of(tag0, tag1));
+        artilce1.setTags(tagsAddIfExistReturn(tag0, tag1, tag2));
 
         DBArticle artilce2 = new DBArticle();
         artilce2.setHeader("Article2");
         artilce2.setText("Article 2 text is here");
-        artilce2.setTags(Set.of(tag0, tag2));
+        artilce2.setTags(tagsAddIfExistReturn(tag0, tag2));
 
-        session.save(tag0);
-        session.save(tag1);
-        session.save(tag2);
         session.save(artilce1);
         session.save(artilce2);
+    }
+
+    public Set<DBTag> tagsAddIfExistReturn(DBTag... args) {
+        Set<DBTag> result = new HashSet<>();// это засунуть в новую или редактируемую статью при добавлении/обновлении
+
+        List<DBTag> tagsToAdd = List.of(args);
+        Criteria criteria = session.createCriteria(DBTag.class);
+        List<DBTag> existing = criteria.list();
+
+        if (existing.isEmpty()) {
+            tagsToAdd.forEach(session::persist);
+            result.addAll(tagsToAdd);
+        } else {
+            List<String> toAddBodies = tagsToAdd.stream().map(DBTag::getTag).collect(Collectors.toList());
+            List<String> existingBodies = existing.stream().map(DBTag::getTag).collect(Collectors.toList());
+
+            //теперь надо разделить toAddBodies на новые и имеющиеся.
+            Map<Boolean, List<String>> newAndExisting = toAddBodies.stream().collect(Collectors.partitioningBy(existingBodies::contains));
+//            newAndExisting.get(true);//existing
+//            newAndExisting.get(false);//new
+            final List<DBTag> newTagsToAdd = newAndExisting.get(false).stream().map(DBTag::new).collect(Collectors.toList());
+            newTagsToAdd.forEach(session::persist);
+            List<DBTag> existingPartToAdd = existing.stream().filter(dbt -> newAndExisting.get(true).contains(dbt.getTag())).collect(Collectors.toList());
+
+            result.addAll(existingPartToAdd);
+            result.addAll(newTagsToAdd);
+        }
+//        result.forEach(bdT -> System.out.format("    ----    Persisted tag with DB_ID %d and Body of %s \n", bdT.getId(), bdT.getTag()));
+        return result;
     }
 
 }
