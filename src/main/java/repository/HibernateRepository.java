@@ -9,6 +9,10 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -39,6 +43,8 @@ public class HibernateRepository implements ArticlesRepository{
         session.beginTransaction();
         DBArticle dbArticle = new DBArticle(article);
         dbArticle.setTags(tagsAddIfExistReturn(dbArticle.getTags()));
+        dbArticle.getTags().forEach(t -> t.getArticles().add(dbArticle));
+
         session.save(dbArticle);
         session.getTransaction().commit();
         return true;
@@ -47,9 +53,14 @@ public class HibernateRepository implements ArticlesRepository{
     @Override
     public List<Article> getAll() {
         session.beginTransaction();
-        Criteria criteria = session.createCriteria(DBArticle.class);
-//        criteria.setMaxResults(100);
-        List<DBArticle> articles = criteria.list();
+
+        CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
+        CriteriaQuery<DBArticle> criteriaQuery = criteriaBuilder.createQuery(DBArticle.class);
+        Root<DBArticle> rootEntry = criteriaQuery.from(DBArticle.class);
+        CriteriaQuery<DBArticle> all = criteriaQuery.select(rootEntry);
+        TypedQuery<DBArticle> allQuery = session.createQuery(all);
+        List<DBArticle> articles =allQuery.getResultList();
+
         session.getTransaction().commit();
         return articles.stream().map(Article::new).collect(Collectors.toList());
     }
@@ -57,8 +68,8 @@ public class HibernateRepository implements ArticlesRepository{
     @Override
     public List<Article> getFilteredByTags(List<aTag> tags) {
         Set<DBTag> nonManagedTags = tags.stream().map(DBTag::new).collect(Collectors.toSet());
-        Set<DBTag> manageddbTags = tagsAddIfExistReturn(nonManagedTags);
-        List<Article> result = manageddbTags.stream().map(DBTag::getId).flatMap(this::getDBArticlesStreamByTag).distinct().map(Article::new).collect(Collectors.toList());
+        Set<DBTag> managedByDBTags = tagsAddIfExistReturn(nonManagedTags);
+        List<Article> result = managedByDBTags.stream().map(DBTag::getId).flatMap(this::getDBArticlesStreamByTag).distinct().map(Article::new).collect(Collectors.toList());
         return result;
     }
 
@@ -81,9 +92,12 @@ public class HibernateRepository implements ArticlesRepository{
     public boolean delete(int id) {
         session.beginTransaction();
         DBArticle article = session.get(DBArticle.class, id);
-        article.getTags().forEach(t -> t.getArticles().remove(article));
-        article.setTags(Collections.emptySet());
+        article.getTags().forEach(t->t.getArticles().remove(article));
+        article.getTags().forEach(session::update);
         session.delete(article);
+
+        removeUnusedTags(session);
+
         session.getTransaction().commit();
         return true;
     }
@@ -92,12 +106,17 @@ public class HibernateRepository implements ArticlesRepository{
     public boolean update(Article article) {
         int id = article.getId();
         session.beginTransaction();
+
         DBArticle article2Update = session.get(DBArticle.class, id);
         DBArticle articleFromFront = new DBArticle(article);
-        article2Update.setHeader(articleFromFront.getHeader());
-        article2Update.setText(articleFromFront.getText());
-        article2Update.setTags(tagsAddIfExistReturn(articleFromFront.getTags()));
+            article2Update.setHeader(articleFromFront.getHeader());
+            article2Update.setText(articleFromFront.getText());
+            article2Update.setTags(tagsAddIfExistReturn(articleFromFront.getTags()));
+            article2Update.getTags().forEach(t->t.getArticles().add(article2Update));
         session.update(article2Update);
+
+        removeUnusedTags(session);
+
         session.getTransaction().commit();
         return true;
     }
@@ -126,4 +145,21 @@ public class HibernateRepository implements ArticlesRepository{
         }
         return result;
     }
+
+    private void removeUnusedTags(Session session){
+        session.flush();
+
+        //getAll
+        CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
+        CriteriaQuery<DBTag> criteriaQuery = criteriaBuilder.createQuery(DBTag.class);
+        Root<DBTag> rootEntry = criteriaQuery.from(DBTag.class);
+        CriteriaQuery<DBTag> all = criteriaQuery.select(rootEntry);
+        TypedQuery<DBTag> allQuery = session.createQuery(all);
+        List<DBTag> tags =allQuery.getResultList();
+
+        System.out.println(tags);
+
+        tags.stream().filter(t -> t.getArticles().isEmpty()).forEach(session::delete);
+    }
+
 }

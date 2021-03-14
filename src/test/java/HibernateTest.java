@@ -1,4 +1,3 @@
-import com.sun.xml.bind.v2.TODO;
 import dto.DBArticle;
 import dto.DBTag;
 import org.hibernate.Criteria;

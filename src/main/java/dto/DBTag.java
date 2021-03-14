@@ -5,8 +5,8 @@ import lombok.NoArgsConstructor;
 import model.aTag;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity(name = "TAGS")
 @Data
@@ -16,21 +16,23 @@ public class DBTag {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String tag;
-    @ManyToMany(mappedBy = "tags", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    private List<DBArticle> articles = new ArrayList<>();// хотя бы на одной стороне должен быть List, если Set и тут и там, то Connection Lick при get()
+    @ManyToMany(mappedBy = "tags", fetch = FetchType.EAGER)
+    private Set<DBArticle> articles = new HashSet<>();
 
     public DBTag(aTag aTag) {
         this.tag = aTag.getTag();
     }
 
-    @Override//если не переопределить, то StackOverflow и ругается на строчку с @Data аннотацией
-    public String toString() {
-        return "DBTag{" +
-                "tag='" + tag + '\'' +
-                '}';
-    }
-
     public DBTag(String tag) {
         this.tag = tag;
+    }
+
+    @Override
+    public String toString() {
+        return "DBTag{" +
+                "id=" + id +
+                ", tag='" + tag + '\'' +
+                ", used in number of articles ='" + articles.size() + '\'' +
+                '}';
     }
 }
