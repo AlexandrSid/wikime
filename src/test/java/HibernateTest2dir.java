@@ -7,11 +7,13 @@ import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.junit.*;
 
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class HibernateTest2dir {
@@ -128,6 +130,8 @@ public class HibernateTest2dir {
         removeUnusedTags(session);
     }
 
+
+
     @Test
     public void testGetArticleByTags(){
         List <String> tags = List.of("Tag1");
@@ -149,6 +153,41 @@ public class HibernateTest2dir {
         System.out.println(collect);
     }
 
+    @Test
+    public void getArticlesWithJPQL(){
+        String queryString = "select distinct a from ARTICLES a join a.tags tag where tag.id in :tags";
+        Set<DBTag> tagsForSearch = tagsAddIfExistReturn(new DBTag("Tag4"), new DBTag("Tag2"));
+        List<Integer> tagsIDs = tagsForSearch.stream().map(DBTag::getId).collect(Collectors.toList());
+        Query query = session.createQuery(queryString);
+        query.setParameter("tags", tagsIDs);
+        List<DBArticle> articles = query.getResultList();
+        articles.forEach(System.out::println);
+    }
+
+
+    @Test
+    public void removeUnusedTags(){
+        String usedTags = "select distinct a.tags from ARTICLES a";
+        List<DBTag> resultList = session.createQuery(usedTags).getResultList();
+
+        List<DBTag> allTags = session.createCriteria(DBTag.class).list();
+
+        resultList.forEach(System.out::println);
+        System.out.println("-------------");
+        allTags.stream().distinct().forEach(System.out::println);
+        System.out.println("-------------");
+
+        List<DBTag> notUsed = allTags.stream().distinct().filter(Predicate.not((resultList::contains))).collect(Collectors.toList());
+        notUsed.forEach(System.out::println);
+
+        notUsed.forEach(session::delete);
+
+        allTags = session.createCriteria(DBTag.class).list();
+        allTags.stream().distinct().forEach(System.out::println);
+
+    }
+
+
 
     private void prepareDB(Session session) {
         DBTag tag1 = new DBTag();
@@ -160,6 +199,13 @@ public class HibernateTest2dir {
         DBTag tag4 = new DBTag();
         tag4.setTag("Tag4");
 
+        DBTag tag42 = new DBTag();
+        tag42.setTag("Tag42");
+        session.save(tag42);
+
+        DBTag tag43 = new DBTag();
+        tag43.setTag("Tag43");
+        session.save(tag43);
 
         DBArticle article1 = new DBArticle();
         article1.setHeader("Article1");
@@ -228,19 +274,10 @@ public class HibernateTest2dir {
         return articles.stream().map(a -> String.format("   Article ID = %d and Header = %s;", a.getId(), a.getHeader())).collect(Collectors.joining("\n"));
     }
 
-    private void removeUnusedTags(Session session){
-        session.flush();
-
-        //getAll
-        CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
-        CriteriaQuery<DBTag> criteriaQuery = criteriaBuilder.createQuery(DBTag.class);
-        Root<DBTag> rootEntry = criteriaQuery.from(DBTag.class);
-        CriteriaQuery<DBTag> all = criteriaQuery.select(rootEntry);
-        TypedQuery<DBTag> allQuery = session.createQuery(all);
-        List<DBTag> tags =allQuery.getResultList();
-
-        System.out.println(tags);
-
-        tags.stream().filter(t -> t.getArticles().isEmpty()).forEach(session::delete);
+    private void removeUnusedTags(Session session) {
     }
+
+
+
+
 }

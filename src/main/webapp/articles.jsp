@@ -19,10 +19,25 @@
         </ls>
     </c:forEach>
     <br>
-<%--    <%= request.getAttribute("message")%>--%>
+    <%--    <%= request.getAttribute("message")%>--%>
+
+
+    <table>
+        <tr>
+            <td>
+                <form action="/wikime">
+                    <button type="submit">Main</button>
+                </form>
+            </td>
+            <td>
+            </td>
+            <td>
+                <form method="get" action="/wikime/new">
+                    <button type="submit">New</button>
+                </form>
+            </td>
+        </tr>
+    </table>
 </center>
-<form method="get" action="/wikime/new">
-    <button type="submit">New</button>
-</form>
 </body>
 </html>

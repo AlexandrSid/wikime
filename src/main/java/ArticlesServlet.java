@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @WebServlet(
         name = "ListArticlesServlet",
@@ -29,7 +30,10 @@ public class ArticlesServlet extends HttpServlet {
 
         ArticlesFilterService service = ArticlesFilterService.getInstance();
 
-        List tags = ((articleTag==null)||(articleTag.isEmpty())) ? Collections.emptyList() : Arrays.asList(new aTag(articleTag));
+        List tags = ((articleTag == null) || (articleTag.isEmpty()))
+                ? Collections.emptyList()
+                : Arrays.stream(articleTag.split(", ")).distinct().map(aTag::new).collect(Collectors.toList());
+
 
         List requestedArticles = service.getAllArticles(tags);
 
@@ -41,6 +45,6 @@ public class ArticlesServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setAttribute("message", "ArticlesServlet.doGet");
-        doPost(req,resp);
+        doPost(req, resp);
     }
 }
