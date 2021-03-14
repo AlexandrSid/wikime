@@ -6,6 +6,7 @@ import model.aTag;
 
 import javax.persistence.*;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity(name = "TAGS")
@@ -34,5 +35,18 @@ public class DBTag {
                 ", tag='" + tag + '\'' +
                 ", used in number of articles ='" + articles.size() + '\'' +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DBTag tag1 = (DBTag) o;
+        return id == tag1.id && Objects.equals(tag, tag1.tag);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, tag);
     }
 }

@@ -19,6 +19,7 @@ public class DBArticle {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String header;
+    @Column(length = 65535)
     private String text;
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinTable(name = "article_tag",

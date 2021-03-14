@@ -6,6 +6,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.junit.*;
 
+import javax.persistence.Query;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -183,6 +184,17 @@ public class HibernateTest {
 
         List<DBTag> tags = session.createQuery("select t from TAGS t", DBTag.class).getResultList();
         tags.forEach(System.out::println);
+    }
+
+    @Test
+    public void getArticlesWithJPQL(){
+        String queryString = "select distinct a from ARTICLES a join a.tags tag where tag.id in :tags";
+        Set<DBTag> tagsForSearch = tagsAddIfExistReturn(new DBTag("Tag4"), new DBTag("Tag2"));
+        List<Integer> tagsIDs = tagsForSearch.stream().map(DBTag::getId).collect(Collectors.toList());
+        Query query = session.createQuery(queryString);
+        query.setParameter("tags", tagsIDs);
+        List<DBArticle> articles = query.getResultList();
+        articles.forEach(System.out::println);
     }
 
     private void prepareDB(Session session) {

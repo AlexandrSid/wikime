@@ -4,20 +4,20 @@ import dto.DBArticle;
 import dto.DBTag;
 import model.Article;
 import model.aTag;
-import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-public class HibernateRepository implements ArticlesRepository{
+public class HibernateRepository implements ArticlesRepository {
 
     public static ArticlesRepository getInstance() {
         if (instance == null) {
@@ -26,14 +26,15 @@ public class HibernateRepository implements ArticlesRepository{
         return instance;
     }
 
-    private HibernateRepository() {}
+    private HibernateRepository() {
+    }
 
     private static ArticlesRepository instance;
 
     private SessionFactory sessionFactory = new Configuration().configure("db/hibernate.cfg.xml").buildSessionFactory();
     private Session session = sessionFactory.openSession();
 
-    public void teardown(){//не знаю как это вызывть. вэб-контейнер по идее должен
+    public void teardown() {//не знаю как это вызывть. вэб-контейнер по идее должен
         session.close();
         sessionFactory.close();
     }
@@ -59,7 +60,7 @@ public class HibernateRepository implements ArticlesRepository{
         Root<DBArticle> rootEntry = criteriaQuery.from(DBArticle.class);
         CriteriaQuery<DBArticle> all = criteriaQuery.select(rootEntry);
         TypedQuery<DBArticle> allQuery = session.createQuery(all);
-        List<DBArticle> articles =allQuery.getResultList();
+        List<DBArticle> articles = allQuery.getResultList();
 
         session.getTransaction().commit();
         return articles.stream().map(Article::new).collect(Collectors.toList());
@@ -67,18 +68,66 @@ public class HibernateRepository implements ArticlesRepository{
 
     @Override
     public List<Article> getFilteredByTags(List<aTag> tags) {
-        Set<DBTag> nonManagedTags = tags.stream().map(DBTag::new).collect(Collectors.toSet());
-        Set<DBTag> managedByDBTags = tagsAddIfExistReturn(nonManagedTags);
-        List<Article> result = managedByDBTags.stream().map(DBTag::getId).flatMap(this::getDBArticlesStreamByTag).distinct().map(Article::new).collect(Collectors.toList());
-        return result;
+        Set<DBTag> tagsFromFrontNoIDs = tags.stream().distinct().map(DBTag::new).collect(Collectors.toSet());
+        Set<DBTag> tagsForSearch = tagsAddIfExistReturn(tagsFromFrontNoIDs);
+
+        String queryString = "select distinct a from ARTICLES a join a.tags tag where tag.id in :tags";
+        List<Integer> tagsIDs = tagsForSearch.stream().map(DBTag::getId).collect(Collectors.toList());
+        Query query = session.createQuery(queryString);
+        query.setParameter("tags", tagsIDs);
+        List<DBArticle> articles = sortByTagsOrder(tags, query.getResultList());
+
+        return articles.stream().map(Article::new).collect(Collectors.toList());
     }
 
-    private Stream<DBArticle> getDBArticlesStreamByTag(Integer tagId) {
-        session.beginTransaction();
-        DBTag tag = session.get(DBTag.class, tagId);
-        session.getTransaction().commit();
-        return tag.getArticles().stream();
+    private List<DBArticle> sortByTagsOrder(List<aTag> tags, Collection<DBArticle> articles) {
+        //внутренний класс для сортировки
+        class ArticleContainer {
+            DBArticle article;
+            int rating;
+
+            public ArticleContainer(DBArticle article) {
+                this.article = article;
+                this.rating = 0;
+            }
+
+            public DBArticle getArticle() {
+                return article;
+            }
+
+            public void setRating(int rating) {
+                this.rating = rating;
+            }
+        }
+        //каждому тегу в запрашиваемой последовательности назначается рейтинг, пришёл первым - получил меньше(1,2,4,8...)
+        Map<String, Integer> tagRating = new HashMap<>();
+        int r = 128;//первые 7 тегов, остальные не будут влиять на порядок
+        for (aTag tag : tags) {
+            tagRating.put(tag.getTag(), r /= 2);
+        }
+
+        //заполняется лист для сортировки...
+        List<ArticleContainer> sortable = articles.stream().map(ArticleContainer::new).collect(Collectors.toList());
+        //...рассчитывается рейтинг каждой подходящей статьи
+        sortable.forEach(container -> container.setRating(container
+                .getArticle()
+                .getTags()
+                .stream()
+                .map(tag -> tagRating.getOrDefault(tag.getTag(), 0))
+                .reduce(0, Integer::sum))
+        );
+
+        //список сортируется
+        Collections.sort(sortable, new Comparator<ArticleContainer>() {
+            @Override
+            public int compare(ArticleContainer o1, ArticleContainer o2) {
+                return o2.rating - o1.rating;
+            }
+        });
+
+        return sortable.stream().map(ArticleContainer::getArticle).collect(Collectors.toList());
     }
+
 
     @Override
     public Article getById(int id) {
@@ -92,7 +141,7 @@ public class HibernateRepository implements ArticlesRepository{
     public boolean delete(int id) {
         session.beginTransaction();
         DBArticle article = session.get(DBArticle.class, id);
-        article.getTags().forEach(t->t.getArticles().remove(article));
+        article.getTags().forEach(t -> t.getArticles().remove(article));
         article.getTags().forEach(session::update);
         session.delete(article);
 
@@ -109,10 +158,10 @@ public class HibernateRepository implements ArticlesRepository{
 
         DBArticle article2Update = session.get(DBArticle.class, id);
         DBArticle articleFromFront = new DBArticle(article);
-            article2Update.setHeader(articleFromFront.getHeader());
-            article2Update.setText(articleFromFront.getText());
-            article2Update.setTags(tagsAddIfExistReturn(articleFromFront.getTags()));
-            article2Update.getTags().forEach(t->t.getArticles().add(article2Update));
+        article2Update.setHeader(articleFromFront.getHeader());
+        article2Update.setText(articleFromFront.getText());
+        article2Update.setTags(tagsAddIfExistReturn(articleFromFront.getTags()));
+        article2Update.getTags().forEach(t -> t.getArticles().add(article2Update));
         session.update(article2Update);
 
         removeUnusedTags(session);
@@ -125,8 +174,8 @@ public class HibernateRepository implements ArticlesRepository{
     public Set<DBTag> tagsAddIfExistReturn(Set<DBTag> tagsToAdd) {
         Set<DBTag> result = new HashSet<>();
 
-        Criteria criteria = session.createCriteria(DBTag.class);
-        List<DBTag> existing = criteria.list();
+        String existingTagsQuery = "select t from TAGS t";
+        List<DBTag> existing = session.createQuery(existingTagsQuery).getResultList();
 
         if (existing.isEmpty()) {
             tagsToAdd.forEach(session::persist);
@@ -146,20 +195,11 @@ public class HibernateRepository implements ArticlesRepository{
         return result;
     }
 
-    private void removeUnusedTags(Session session){
-        session.flush();
-
-        //getAll
-        CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
-        CriteriaQuery<DBTag> criteriaQuery = criteriaBuilder.createQuery(DBTag.class);
-        Root<DBTag> rootEntry = criteriaQuery.from(DBTag.class);
-        CriteriaQuery<DBTag> all = criteriaQuery.select(rootEntry);
-        TypedQuery<DBTag> allQuery = session.createQuery(all);
-        List<DBTag> tags =allQuery.getResultList();
-
-        System.out.println(tags);
-
-        tags.stream().filter(t -> t.getArticles().isEmpty()).forEach(session::delete);
+    private void removeUnusedTags(Session session) {
+        String usingTagsQuery = "select distinct a.tags from ARTICLES a";
+        List<DBTag> usingTags = session.createQuery(usingTagsQuery).getResultList();
+        List<DBTag> allTags = session.createCriteria(DBTag.class).list();
+        allTags.stream().distinct().filter(Predicate.not((usingTags::contains))).forEach(session::delete);//ну такое...
     }
 
 }
