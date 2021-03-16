@@ -17,7 +17,7 @@ public class HibernateTest {
 
     @BeforeClass
     public static void setup() throws Exception {
-        sessionFactory = new Configuration().configure("db/hibernate.cfg.xml").buildSessionFactory();
+        sessionFactory = new Configuration().configure("db/hibernate_test.cfg.xml").buildSessionFactory();
         System.out.println("Session Factory SETUP");
     }
 

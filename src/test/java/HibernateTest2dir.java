@@ -23,7 +23,7 @@ public class HibernateTest2dir {
 
     @BeforeClass
     public static void setup() throws Exception {
-        sessionFactory = new Configuration().configure("db/hibernate.cfg.xml").buildSessionFactory();
+        sessionFactory = new Configuration().configure("db/hibernate_test.cfg.xml").buildSessionFactory();
         System.out.println("Session Factory SETUP");
     }
 
@@ -79,7 +79,7 @@ public class HibernateTest2dir {
 
     @Test
     public void testGetTagByID() {
-        DBTag tag = session.get(DBTag.class, 1);
+        DBTag tag = session.get(DBTag.class, 3);
         System.out.println(tag);
         System.out.println(showArticlesWORecursion(tag.getArticles()));
     }
