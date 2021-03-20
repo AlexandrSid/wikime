@@ -23,6 +23,10 @@ public class ShowArticleServlet extends HttpServlet {
 //        req.getParameterMap().entrySet().stream().map(e-> e.getKey() + " " + Arrays.toString(e.getValue())).forEach(System.out::println);
         Integer id = Integer.valueOf(req.getParameter("id"));
         Article article = articlesService.getArticleByID(id);
+        if (article == null){//возможно стоило кидать какую-нибудь статью с ИД=-1 и пустыми полями например.
+            resp.sendRedirect("error.html");
+            return;
+        }
         req.setAttribute("article", article);
         RequestDispatcher view = req.getRequestDispatcher("article.jsp");
         view.forward(req, resp);

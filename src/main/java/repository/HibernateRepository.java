@@ -135,7 +135,12 @@ public class HibernateRepository implements ArticlesRepository {
         session.beginTransaction();
         DBArticle article = session.get(DBArticle.class, id);
         session.getTransaction().commit();
-        return new Article(article);
+        try {
+            Article result = new Article(article);
+            return result;
+        } catch (NullPointerException e) {
+            return null;
+        }
     }
 
     @Override
