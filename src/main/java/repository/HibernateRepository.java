@@ -40,7 +40,7 @@ public class HibernateRepository implements ArticlesRepository {
     }
 
     @Override
-    public boolean add(Article article) {
+    public Article add(Article article) {
         session.beginTransaction();
         DBArticle dbArticle = new DBArticle(article);
         dbArticle.setTags(tagsAddIfExistReturn(dbArticle.getTags()));
@@ -48,7 +48,8 @@ public class HibernateRepository implements ArticlesRepository {
 
         session.save(dbArticle);
         session.getTransaction().commit();
-        return true;
+        article.setId(dbArticle.getId());
+        return article;
     }
 
     @Override
@@ -152,7 +153,7 @@ public class HibernateRepository implements ArticlesRepository {
     }
 
     @Override
-    public boolean update(Article article) {
+    public Article update(Article article) {
         int id = article.getId();
         session.beginTransaction();
 
@@ -167,7 +168,7 @@ public class HibernateRepository implements ArticlesRepository {
         removeUnusedTags(session);
 
         session.getTransaction().commit();
-        return true;
+        return new Article(article2Update);
     }
 
     //подробнее метод представлен в тестовом классе

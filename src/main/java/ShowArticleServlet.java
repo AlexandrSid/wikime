@@ -1,5 +1,5 @@
 import model.Article;
-import repository.ArticlesRepository;
+import service.ArticlesService;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -14,23 +14,24 @@ import java.io.IOException;
         urlPatterns = "/article"
 )
 public class ShowArticleServlet extends HttpServlet {
+
+    private final ArticlesService articlesService = ArticlesService.getInstance();
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        System.out.println("doGet@ShowArticleServlet with req params:");
-        req.getParameterMap().entrySet().stream().map(e->e.getKey().toString() + " " + e.getValue().toString()).forEach(System.out::println);
+//        System.out.println("doGet@ShowArticleServlet with req params:");
+//        req.getParameterMap().entrySet().stream().map(e-> e.getKey() + " " + Arrays.toString(e.getValue())).forEach(System.out::println);
         Integer id = Integer.valueOf(req.getParameter("id"));
-        ArticlesRepository instance = ArticlesRepository.getRepository();
-        Article article = instance.getById(id);
+        Article article = articlesService.getArticleByID(id);
         req.setAttribute("article", article);
         RequestDispatcher view = req.getRequestDispatcher("article.jsp");
         view.forward(req, resp);
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         Integer id = Integer.valueOf(req.getParameter("id"));
-        ArticlesRepository repository = ArticlesRepository.getRepository();
-        repository.delete(id);
-        resp.sendRedirect("/wikime/articles");
+        articlesService.deleteArticleByID(id);
+        resp.sendRedirect("articles");
     }
 }

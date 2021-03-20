@@ -27,7 +27,7 @@
         <input type="text" name="text" size="100" placeholder="[Paragraph1, Paragraph2, ..., ParagraphN]" value="${article.paragraphs}"><br/>
     </label>
     <button type="submit">Save</button>
-    <button onclick="window.history.back()">Cancel</button>
 </form>
+    <button onclick="window.history.back()">Cancel</button>
 </body>
 </html>

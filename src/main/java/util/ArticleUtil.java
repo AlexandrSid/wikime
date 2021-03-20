@@ -25,8 +25,6 @@ public class ArticleUtil {
     }
 
     public static Article constructAndReturn(int id, String header, String tags, String text) {
-//        System.out.println(tags);
-//        System.out.println(text);
         if(tags.length()<2){tags = "  ";}
         if(text.length()<2){text = "  ";}
         String[] tagsStringsArray = tags.substring(1, tags.length() - 1).split(", ");//корявенько
