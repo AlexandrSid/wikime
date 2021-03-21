@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class InMemoryArticlesRepository implements ArticlesRepository {
-    private final List<Article> articlesList = new ArrayList<>();
+    List<Article> articlesList = new ArrayList<>();
 
     //make it singleton
     private static final InMemoryArticlesRepository instance = createAndInitializeRepo();
