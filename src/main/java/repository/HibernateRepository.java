@@ -76,57 +76,9 @@ public class HibernateRepository implements ArticlesRepository {
         List<Integer> tagsIDs = tagsForSearch.stream().map(DBTag::getId).collect(Collectors.toList());
         Query query = session.createQuery(queryString);
         query.setParameter("tags", tagsIDs);
-        List<DBArticle> articles = sortByTagsOrder(tags, query.getResultList());
+        List<DBArticle> articles = query.getResultList();
 
         return articles.stream().map(Article::new).collect(Collectors.toList());
-    }
-
-    private List<DBArticle> sortByTagsOrder(List<aTag> tags, Collection<DBArticle> articles) {
-        //внутренний класс для сортировки
-        class ArticleContainer {
-            DBArticle article;
-            int rating;
-
-            public ArticleContainer(DBArticle article) {
-                this.article = article;
-                this.rating = 0;
-            }
-
-            public DBArticle getArticle() {
-                return article;
-            }
-
-            public void setRating(int rating) {
-                this.rating = rating;
-            }
-        }
-        //каждому тегу в запрашиваемой последовательности назначается рейтинг, пришёл первым - получил меньше(1,2,4,8...)
-        Map<String, Integer> tagRating = new HashMap<>();
-        int r = 128;//первые 7 тегов, остальные не будут влиять на порядок
-        for (aTag tag : tags) {
-            tagRating.put(tag.getTag(), r /= 2);
-        }
-
-        //заполняется лист для сортировки...
-        List<ArticleContainer> sortable = articles.stream().map(ArticleContainer::new).collect(Collectors.toList());
-        //...рассчитывается рейтинг каждой подходящей статьи
-        sortable.forEach(container -> container.setRating(container
-                .getArticle()
-                .getTags()
-                .stream()
-                .map(tag -> tagRating.getOrDefault(tag.getTag(), 0))
-                .reduce(0, Integer::sum))
-        );
-
-        //список сортируется
-        Collections.sort(sortable, new Comparator<ArticleContainer>() {
-            @Override
-            public int compare(ArticleContainer o1, ArticleContainer o2) {
-                return o2.rating - o1.rating;
-            }
-        });
-
-        return sortable.stream().map(ArticleContainer::getArticle).collect(Collectors.toList());
     }
 
 

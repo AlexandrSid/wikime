@@ -9,7 +9,7 @@ import org.junit.*;
 import javax.persistence.Query;
 import java.util.*;
 import java.util.stream.Collectors;
-
+@Ignore
 public class HibernateTest {
 
     private static SessionFactory sessionFactory = null;
