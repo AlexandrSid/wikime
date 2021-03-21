@@ -1,5 +1,6 @@
 import model.Article;
 import repository.ArticlesRepository;
+import service.ArticlesService;
 import util.ArticleUtil;
 
 import javax.servlet.ServletException;
@@ -15,53 +16,47 @@ import java.io.IOException;
 
 public class EditArticleServlet extends HttpServlet {
 
+    private final ArticlesService articlesService = ArticlesService.getInstance();
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-//        System.out.println("doGet@EditArticleServlet with req params:");
-//        req.getParameterMap().entrySet().stream().map(e -> e.getKey().toString() + " " + req.getParameter(e.getKey())).forEach(System.out::println);
         String idFromReq = req.getParameter("id");
         Article article;
         if (idFromReq != null) {
             Integer id = Integer.valueOf(idFromReq);
-            System.out.println(id);
-            ArticlesRepository instance = ArticlesRepository.getRepository();
-            article = instance.getById(id);
-            System.out.println(article);
+            article = articlesService.getArticleByID(id);
         } else {
             article = new Article();
             article.setId(0);
         }
         req.setAttribute("article", article);
-
         getServletContext().getRequestDispatcher("/addArticle.jsp").forward(req, resp);
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setCharacterEncoding("UTF-8");
-//        System.out.println("doPost@EditArticleServlet with req params:");
-//        req.getParameterMap().entrySet().stream().map(e -> e.getKey().toString() + " " + req.getParameter(e.getKey())).forEach(System.out::println);
-        ArticlesRepository instance = ArticlesRepository.getRepository();
-        int id = Integer.valueOf(req.getParameter("id"));
+        int id = Integer.parseInt(req.getParameter("id"));
         String title = req.getParameter("title");
         String tags = req.getParameter("tags");
         String text = req.getParameter("text");
 
-        Article article = ArticleUtil.constructAndReturn(id, title, tags, text);
+        Article article = articlesService.constructAndReturn(id, title, tags, text);
 
         if (title.length() < 1 && tags.length() <= 2 && text.length() <= 2) {//если все поля пусты
             if (id != 0) {//и сообщение не новое
-                instance.delete(article.getId());
+                articlesService.deleteArticleByID(article.getId());
             }
             resp.sendRedirect("articles");
         } else {
             if (id != 0) {
-                instance.update(article);
+                articlesService.update(article);
             } else {
-                instance.add(article);
-                id = article.getId();
+                Article article1 = articlesService.addArticle(article);
+                id = article1.getId();
             }
             resp.sendRedirect("article?id=" + id);
+//            resp.sendRedirect("articles");
         }
     }
 }

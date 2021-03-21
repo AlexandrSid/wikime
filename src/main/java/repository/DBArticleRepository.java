@@ -25,7 +25,7 @@ public class DBArticleRepository implements ArticlesRepository {
     }
 
     @Override
-    public boolean add(Article article) {
+    public Article add(Article article) {
         Statement statement = connectionHolder.getStatement();
         final String addArticle = "insert into articles (id, title, text) values (%d, '%s', '%s')";
         final String addTag = "insert into tags (id, tag_body) values (%d, '%s') on conflict do nothing";
@@ -40,10 +40,9 @@ public class DBArticleRepository implements ArticlesRepository {
                 statement.executeUpdate(String.format(addTag, tag.getId(), tag.getTag()));
                 statement.executeUpdate(String.format(addRelations, tag.getId(), article.getId()));
             }
-            return true;
         } catch (SQLException e) {
-            return false;
         }
+        return article;
     }
 
     @Override
@@ -140,13 +139,13 @@ public class DBArticleRepository implements ArticlesRepository {
     }
 
     @Override
-    public boolean update(Article article) {
+    public Article update(Article article) {
         //не оптимально, но просто для понимания.
         Statement statement = connectionHolder.getStatement();
         int id = article.getId();
         final boolean removed = delete(id);
-        final boolean added = add(article);
-        return added & removed;
+        final Article added = add(article);
+        return added;
 
     }
 
@@ -155,8 +154,8 @@ public class DBArticleRepository implements ArticlesRepository {
         final String query = "delete from tags where id in (select id from tags left join tags_connector on tags_connector.tag_id = tags.id where tags_connector.article_id is null)";
         try {
             statement.executeUpdate(query);
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
         }
     }
 

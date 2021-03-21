@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,11 +10,17 @@
 
         Welcome to wikime, your personal databased wiki
     </h1>
-    <form method="post" action="articles">
         <br>
-        <input placeholder="Enter tag" name="tag">
-        <input type="submit">
+    <form method="post" action="articles">
+        <input placeholder="Enter tags separated by ', ': (Tag1, Tag_2, ... , #Cat)"  name="tag" size="80">
+        <button type="submit">Find</button>
     </form>
+    <br>
+    <div>
+        <form method="get" action="articles">
+            <button type="submit">All Articles</button>
+        </form>
+    </div>
 </center>
 
 
