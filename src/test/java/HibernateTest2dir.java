@@ -16,6 +16,7 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+@Ignore
 public class HibernateTest2dir {
 
     private static SessionFactory sessionFactory = null;
