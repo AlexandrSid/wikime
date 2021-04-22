@@ -1,4 +1,4 @@
-<%@ page import="java.util.*" %>
+<%@ page import="java.org.aleksid.wikime.util.*" %>
 <!DOCTYPE html>
 <html>
 <body>

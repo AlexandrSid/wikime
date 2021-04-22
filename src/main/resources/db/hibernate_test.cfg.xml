@@ -14,8 +14,8 @@
         <property name="hbm2ddl.auto">create</property>
         <property name="show_sql">true</property>
 
-        <mapping class="dto.DBArticle"/>
-        <mapping class="dto.DBTag"/>
+        <mapping class="org.aleksid.wikime.dto.DBArticle"/>
+        <mapping class="org.aleksid.wikime.dto.DBTag"/>
 
     </session-factory>
 </hibernate-configuration>

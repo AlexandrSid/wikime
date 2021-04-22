@@ -1,5 +1,5 @@
-import dto.DBArticle;
-import dto.DBTag;
+import org.aleksid.wikime.dto.DBArticle;
+import org.aleksid.wikime.dto.DBTag;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;

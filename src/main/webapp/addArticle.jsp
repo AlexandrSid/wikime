@@ -14,7 +14,7 @@
 </head>
 <body>
 <%--<h1>addArticle</h1>--%>
-<jsp:useBean id="article" type="model.Article" scope="request"/>
+<jsp:useBean id="article" type="org.aleksid.wikime.model.Article" scope="request"/>
 <form method="post">
     <input type="hidden" name="id" value="${article.id}">
     <label>Title:

@@ -7,10 +7,10 @@
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ page import="java.util.*" %>
-<%@ page import="model.Article" %>
+<%@ page import="java.org.aleksid.wikime.util.*" %>
+<%@ page import="org.aleksid.wikime.model.Article" %>
 <html>
-<jsp:useBean id="article" scope="request" type="model.Article"/>
+<jsp:useBean id="article" scope="request" type="org.aleksid.wikime.model.Article"/>
 
 <head>
     <title>${article.header}</title>
