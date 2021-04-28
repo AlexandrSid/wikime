@@ -71,9 +71,16 @@ public class MainController {
             @RequestParam String text,
             Model model
     ) {
+        int articleId = Integer.valueOf(id);
         Article article = articlesService.constructAndReturn(Integer.parseInt(id), header, tags, text);
-        Article update = articlesService.update(article);
-        return "redirect:/article?id=" + update.getId();
+        if (articleId == 0) {
+            final Article article1 = articlesService.addArticle(article);
+            articleId = article1.getId();
+        } else {
+            final Article update = articlesService.update(article);
+            articleId = update.getId();
+        }
+        return "redirect:/article?id=" + articleId;
     }
 
     @PostMapping("/delete")

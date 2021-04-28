@@ -3,14 +3,15 @@
 <@c.page>
     <div>
         <h1>
-            Welcome to wikime, your personal databased wiki
+            Welcome to wikime, your personal databased wiki!
         </h1>
     </div>
-    <form method="get" action="/articles">
-        <input type="text" name="filter" placeholder="Enter tags separated by ', ': (Tag1, Tag_2, ... , #Cat)">
-        <button type="submit">Search</button>
+    <div class-="m-2">
+    <form class="form-inline" method="get" action="/articles">
+        <label class="sr-only" for="tagsToSearch">Tags</label>
+        <input class="form-control col-sm-8" id="tagsToSearch" type="text" name="filter" placeholder="Enter tags separated by ', ': Tag1, Tag_2, ... , #Cat">
+        <button type="submit" class="btn btn-primary mx-2">Search</button>
+        <a class="btn btn-primary" href="/articles" role="button">All articles</a>
     </form>
-    <form action="/articles" method="get">
-        <button type="submit">All articles</button>
-    </form>
+    </div>
 </@c.page>

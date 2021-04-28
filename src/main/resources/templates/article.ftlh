@@ -2,13 +2,14 @@
 <#import "parts/util.ftlh" as u>
 
 <@c.page>
-    <@u.util/>
+<#--    <@u.util/>-->
     <#if article??>
         <div>
-            <form action="/edit" method="get">
-                <input type="hidden" name="id" value="${article.id}">
-                <button type="submit">Edit Article</button>
-            </form>
+<#--            <form action="/edit" method="get">-->
+<#--                <input type="hidden" name="id" value="${article.id}">-->
+<#--                <button type="submit">Edit Article</button>-->
+<#--            </form>-->
+            <a class="btn btn-warning" href="/edit?id=${article.id}" role="button">Edit Article</a>
         </div>
         <div>
             <h3>${article.header}</h3>

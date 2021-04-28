@@ -1,8 +1,8 @@
 <#import "parts/common.ftlh" as c>
 <#import "parts/util.ftlh" as u>
 <@c.page>
-    <@u.util/>
-    <div>Articles: </div>
+<#--    <@u.util/>-->
+    <div><h4>Articles: </h4></div>
     <#list articles as article>
         <div>
             <a href="article?id=${article.id}">
@@ -15,4 +15,7 @@
     <#else>
         No articles
     </#list>
+    <div>
+        <a class="btn btn-primary my-4" href="/new" role="button">Create new article</a>
+    </div>
 </@c.page>
