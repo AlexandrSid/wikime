@@ -1,7 +1,7 @@
 package org.aleksid.wikime.util;
 
 import org.aleksid.wikime.model.Article;
-import org.aleksid.wikime.model.aTag;
+import org.aleksid.wikime.model.Tag;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -20,7 +20,7 @@ public class ArticleUtil {
     }
 
     public static String tagsToStr(Article article) {
-        return article.getTags().stream().map(aTag::toString).collect(Collectors.joining(","));
+        return article.getTags().stream().map(Tag::toString).collect(Collectors.joining(","));
     }
 
     public static Article constructAndReturn(int id, String header, String tags, String text) {
@@ -35,8 +35,8 @@ public class ArticleUtil {
 //        System.out.println(new Gson().toJson(paragraphs));
 
         Article article;
-        Set<aTag> collect = Arrays.stream(tagsStringsArray)
-                .map(aTag::new)
+        Set<Tag> collect = Arrays.stream(tagsStringsArray)
+                .map(Tag::new)
                 .collect(Collectors.toSet());
         List<String> paragraphsList = Arrays.asList(paragraphs);
 

@@ -11,9 +11,9 @@ public class Main {
     public static void initializeRepo(ArticlesRepository repository) {
         repository.add(new Article(
                 new HashSet<>(Arrays.asList(
-                        new aTag("tag1"),
-                        new aTag("tag2"),
-                        new aTag("tag4"))
+                        new Tag("tag1"),
+                        new Tag("tag2"),
+                        new Tag("tag4"))
                 ),
                 "Article 1",
                 Arrays.asList("String 1", "Strogmn2", "String 3", "Strogmn4")
@@ -22,9 +22,9 @@ public class Main {
 
         repository.add(new Article(
                 new HashSet<>(Arrays.asList(
-                        new aTag("tag1"),
-                        new aTag("tag3"),
-                        new aTag("tag4"))
+                        new Tag("tag1"),
+                        new Tag("tag3"),
+                        new Tag("tag4"))
                 ),
                 "Article 6",
                 Arrays.asList("Word1", "Word2", "words 3", "Words 4")
@@ -91,7 +91,7 @@ public class Main {
         repository.add(article9);
         System.out.println(repository.getAll());
         System.out.println("\n---------------\n");
-        List<aTag> tag3 = Collections.singletonList(new aTag("tag3"));
+        List<Tag> tag3 = Collections.singletonList(new Tag("tag3"));
         System.out.println(repository.getFilteredByTags(tag3));
         System.out.println("\n---------------\n");
         System.out.println(repository.getById(article1.getId()));
@@ -114,9 +114,9 @@ public class Main {
 
     static Article article9 = new Article(
             new HashSet<>(Arrays.asList(
-                    new aTag("tag1"),
-                    new aTag("tag3"),
-                    new aTag("tag4"))
+                    new Tag("tag1"),
+                    new Tag("tag3"),
+                    new Tag("tag4"))
             ),
             "Article 9",
             Arrays.asList("Word1", "Word2", "words 3", "Words 4")
@@ -125,9 +125,9 @@ public class Main {
 
     static Article article1 = new Article(
             new HashSet<>(Arrays.asList(
-                    new aTag("tag1"),
-                    new aTag("tag2"),
-                    new aTag("tag4"))
+                    new Tag("tag1"),
+                    new Tag("tag2"),
+                    new Tag("tag4"))
             ),
             "Article 1",
             Arrays.asList("String 1", "Strogmn2", "String 3", "Strogmn4")
@@ -137,9 +137,9 @@ public class Main {
 
     static Article article1edited = new Article(
             new HashSet<>(Arrays.asList(
-                    new aTag("tag3"),
-                    new aTag("tag4"),
-                    new aTag("tag6"))
+                    new Tag("tag3"),
+                    new Tag("tag4"),
+                    new Tag("tag6"))
             ),
             "Article 1",
             Arrays.asList("word 1", "words words", "String-3", "Strogmn_-_4")

@@ -2,7 +2,7 @@ package org.aleksid.wikime.repository;
 
 import org.aleksid.wikime.model.Article;
 import org.aleksid.wikime.model.Main;
-import org.aleksid.wikime.model.aTag;
+import org.aleksid.wikime.model.Tag;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,7 +42,7 @@ public class InMemoryArticlesRepository implements ArticlesRepository {
     }
 
     @Override
-    public List<Article> getFilteredByTags(List<aTag> tags) {
+    public List<Article> getFilteredByTags(List<Tag> tags) {
         return getAll()
                 .stream()
                 .filter(ar -> ar.getTags().containsAll(tags))

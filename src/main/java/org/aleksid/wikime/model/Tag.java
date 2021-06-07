@@ -8,12 +8,12 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 @Data
-public class aTag {
+public class Tag {
     private int id;
     private String tag;
-    private static Set<aTag> tags = new CopyOnWriteArraySet<>();
+    private static Set<Tag> tags = new CopyOnWriteArraySet<>();
 
-    public aTag(String newTag){
+    public Tag(String newTag){
         this.id = newTag.hashCode();
         this.tag = newTag;
         tags.add(this);
@@ -28,7 +28,7 @@ public class aTag {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        aTag tag1 = (aTag) o;
+        Tag tag1 = (Tag) o;
         return tag.equals(tag1.tag);
     }
 
@@ -37,8 +37,8 @@ public class aTag {
         return Objects.hash(tag);
     }
 
-    public aTag(DBTag dbTag) {
-        this.id = dbTag.getId();
+    public Tag(DBTag dbTag) {
+        this.id = dbTag.getId().intValue();
         this.tag = dbTag.getTag();
     }
 }

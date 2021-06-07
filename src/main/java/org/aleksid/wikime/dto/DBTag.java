@@ -2,7 +2,7 @@ package org.aleksid.wikime.dto;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.aleksid.wikime.model.aTag;
+import org.aleksid.wikime.model.Tag;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -15,13 +15,13 @@ import java.util.Set;
 public class DBTag {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
     private String tag;
     @ManyToMany(mappedBy = "tags", fetch = FetchType.EAGER)
     private Set<DBArticle> articles = new HashSet<>();
 
-    public DBTag(aTag aTag) {
-        this.tag = aTag.getTag();
+    public DBTag(Tag Tag) {
+        this.tag = Tag.getTag();
     }
 
     public DBTag(String tag) {

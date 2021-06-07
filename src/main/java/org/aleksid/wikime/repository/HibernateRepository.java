@@ -3,7 +3,7 @@ package org.aleksid.wikime.repository;
 import org.aleksid.wikime.dto.DBArticle;
 import org.aleksid.wikime.dto.DBTag;
 import org.aleksid.wikime.model.Article;
-import org.aleksid.wikime.model.aTag;
+import org.aleksid.wikime.model.Tag;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
@@ -48,7 +48,7 @@ public class HibernateRepository implements ArticlesRepository {
 
         session.save(dbArticle);
         session.getTransaction().commit();
-        article.setId(dbArticle.getId());
+        article.setId(dbArticle.getId().intValue());
         return article;
     }
 
@@ -69,12 +69,12 @@ public class HibernateRepository implements ArticlesRepository {
     }
 
     @Override
-    public List<Article> getFilteredByTags(List<aTag> tags) {
+    public List<Article> getFilteredByTags(List<Tag> tags) {
         Set<DBTag> tagsFromFrontNoIDs = tags.stream().distinct().map(DBTag::new).collect(Collectors.toSet());
         Set<DBTag> tagsForSearch = tagsAddIfExistReturn(tagsFromFrontNoIDs);
 
         String queryString = "select distinct a from ARTICLES a join a.tags tag where tag.id in :tags";
-        List<Integer> tagsIDs = tagsForSearch.stream().map(DBTag::getId).collect(Collectors.toList());
+        List<Integer> tagsIDs = tagsForSearch.stream().map(t -> t.getId().intValue()).collect(Collectors.toList());
         Query query = session.createQuery(queryString);
         query.setParameter("tags", tagsIDs);
         List<DBArticle> articles = query.getResultList();
