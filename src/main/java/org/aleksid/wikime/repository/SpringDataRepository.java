@@ -9,7 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 @Component
@@ -18,9 +20,12 @@ public class SpringDataRepository implements ArticlesRepository {
     @Autowired
     private ArticleRepo repo;
 
+    @Autowired TagRepo tagRepo;
+
     @Override
     public Article add(Article article) {
         DBArticle toSave = new DBArticle(article);
+        insertTagsIfExists(toSave);
         DBArticle saved = repo.save(toSave);
         return new Article(saved);
     }
@@ -33,7 +38,8 @@ public class SpringDataRepository implements ArticlesRepository {
 
     @Override
     public List<Article> getFilteredByTags(List<Tag> tags) {
-        List<DBTag> tagsToSearch = tags.stream().map(DBTag::new).collect(Collectors.toList());
+        List<String> tagsTags = tags.stream().map(Tag::getTag).collect(Collectors.toList());
+        List<DBTag> tagsToSearch = tagRepo.findAllByTagIn(tagsTags);
         List<DBArticle> foundByTags = repo.findAllByTagsIn(tagsToSearch);
         return foundByTags.stream().map(Article::new).collect(Collectors.toList());
     }
@@ -55,6 +61,22 @@ public class SpringDataRepository implements ArticlesRepository {
 
     @Override
     public Article update(Article article) {
-        return add(article);
+        DBArticle dbArticleToUpdate = new DBArticle(article);
+        dbArticleToUpdate.setId((long)article.getId());
+        insertTagsIfExists(dbArticleToUpdate);
+            dbArticleToUpdate.getId();//foobar line
+        DBArticle dbArticleSaved = repo.save(dbArticleToUpdate);
+        return new Article(dbArticleSaved);
     }
+
+
+    private void insertTagsIfExists(DBArticle toSave) {
+        List<String> tagsTags = toSave.getTags().stream().map(DBTag::getTag).collect(Collectors.toList());
+        List<DBTag> allByTagIn = tagRepo.findAllByTagIn(tagsTags);
+        List<String> existing = allByTagIn.stream().map(DBTag::getTag).collect(Collectors.toList());
+        tagsTags.removeAll(existing);
+        Set<DBTag> collect = Stream.concat(allByTagIn.stream(), tagsTags.stream().map(DBTag::new)).collect(Collectors.toSet());
+        toSave.setTags(collect);
+    }
+
 }

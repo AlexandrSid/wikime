@@ -33,6 +33,9 @@ public class MainController {
         List<Article> articles;
         if (filter != null && !filter.isEmpty()) {
             articles = articlesService.getArticlesContainingTags(articlesService.createTagsFromRequest(filter));
+            if (articles.isEmpty()){
+                model.addAttribute("not_found_message", "No articles found");
+            }
         } else {
             articles = articlesService.getAllArticles();
         }

@@ -105,7 +105,7 @@ public class ArticlesService {
         }
 
         //заполняется лист для сортировки...
-        List<ArticleContainer> sortable = articles.stream().map(ArticleContainer::new).collect(Collectors.toList());
+        List<ArticleContainer> sortable = articles.stream().distinct().map(ArticleContainer::new).collect(Collectors.toList());
         //...рассчитывается рейтинг каждой подходящей статьи
         sortable.forEach(container -> container.setRating(container
                 .getArticle()

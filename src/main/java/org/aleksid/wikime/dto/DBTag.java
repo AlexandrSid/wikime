@@ -42,11 +42,11 @@ public class DBTag {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         DBTag tag1 = (DBTag) o;
-        return id == tag1.id && Objects.equals(tag, tag1.tag);
+        return Objects.equals(tag, tag1.tag);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, tag);
+        return Objects.hash(tag);
     }
 }

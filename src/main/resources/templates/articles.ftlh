@@ -13,7 +13,7 @@
                 </a>
         </div>
     <#else>
-        No articles
+        <#if not_found_message??>${not_found_message}<#else>No articles</#if>
     </#list>
     <div>
         <a class="btn btn-primary my-4" href="/new" role="button">Create new article</a>
