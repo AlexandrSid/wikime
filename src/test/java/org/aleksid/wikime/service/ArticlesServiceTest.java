@@ -1,7 +1,7 @@
 package org.aleksid.wikime.service;
 
 import org.aleksid.wikime.model.Article;
-import org.aleksid.wikime.model.aTag;
+import org.aleksid.wikime.model.Tag;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,7 +42,7 @@ class ArticlesServiceTest {
 
     @Test
     void testGetArticlesContainingTags() {
-        final List<aTag> tags = List.of(new aTag("tag1"), new aTag("tag2"));
+        final List<Tag> tags = List.of(new Tag("tag1"), new Tag("tag2"));
         Article article = new Article(Set.copyOf(tags), "TestHeader", List.of());
         when(repository.getFilteredByTags(tags)).thenReturn(List.of(article));
         service.getArticlesContainingTags(tags);
@@ -76,7 +76,7 @@ class ArticlesServiceTest {
         String paragraph1 = "paragraph1";
         String paragraph2 = "paragraph2";
         mnlArticle.setParagraphs(List.of(paragraph1, paragraph2));
-        mnlArticle.setTags(Set.of(new aTag("tag1"), new aTag("tag2")));
+        mnlArticle.setTags(Set.of(new Tag("tag1"), new Tag("tag2")));
 
         Article bldArticle = service.constructAndReturn(1, new_header, "[tag1, tag2]", List.of(paragraph1, paragraph2).toString());
         Assertions.assertEquals(mnlArticle, bldArticle);
@@ -94,9 +94,9 @@ class ArticlesServiceTest {
     @Test
     void createTagsFromRequest() {
         String input = "tag1, tag11, cat, dog";
-        List<aTag> tagsFromRequest = service.createTagsFromRequest(input);
+        List<Tag> tagsFromRequest = service.createTagsFromRequest(input);
 
-        String collect = tagsFromRequest.stream().map(aTag::getTag).collect(Collectors.joining(", "));
+        String collect = tagsFromRequest.stream().map(Tag::getTag).collect(Collectors.joining(", "));
         Assertions.assertEquals(input, collect);
     }
 }

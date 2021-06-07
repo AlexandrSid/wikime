@@ -157,7 +157,7 @@ public class HibernateTest2dir {
     public void getArticlesWithJPQL(){
         String queryString = "select distinct a from ARTICLES a join a.tags tag where tag.id in :tags";
         Set<DBTag> tagsForSearch = tagsAddIfExistReturn(new DBTag("Tag4"), new DBTag("Tag2"));
-        List<Integer> tagsIDs = tagsForSearch.stream().map(DBTag::getId).collect(Collectors.toList());
+        List<Integer> tagsIDs = tagsForSearch.stream().map(t -> t.getId().intValue()).collect(Collectors.toList());
         Query query = session.createQuery(queryString);
         query.setParameter("tags", tagsIDs);
         List<DBArticle> articles = query.getResultList();

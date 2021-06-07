@@ -13,11 +13,11 @@ public class Article {
     @EqualsAndHashCode.Exclude
     private int id;
 
-    private Set<aTag> tags;
+    private Set<Tag> tags;
     private String header;
     private List<String> paragraphs;
 
-    public Article(Set<aTag> tags, String header, List<String> paragraphs) {
+    public Article(Set<Tag> tags, String header, List<String> paragraphs) {
         this.tags = tags;
         this.header = header;
         this.paragraphs = paragraphs;
@@ -38,9 +38,9 @@ public class Article {
     }
 
     public Article(DBArticle dbArticle) {
-        this.id = dbArticle.getId();
+        this.id = dbArticle.getId().intValue();
         this.header = dbArticle.getHeader();
         this.paragraphs = Arrays.asList(new Gson().fromJson(dbArticle.getText(), String[].class));
-        this.tags = dbArticle.getTags().stream().map(aTag::new).collect(Collectors.toSet());
+        this.tags = dbArticle.getTags().stream().map(Tag::new).collect(Collectors.toSet());
     }
 }

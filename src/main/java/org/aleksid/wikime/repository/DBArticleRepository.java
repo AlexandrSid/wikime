@@ -2,7 +2,7 @@ package org.aleksid.wikime.repository;
 
 import com.google.gson.Gson;
 import org.aleksid.wikime.model.Article;
-import org.aleksid.wikime.model.aTag;
+import org.aleksid.wikime.model.Tag;
 
 import java.sql.*;
 import java.util.*;
@@ -35,8 +35,8 @@ public class DBArticleRepository implements ArticlesRepository {
             Gson gson = new Gson();
             String articlesTableQuery = String.format(addArticle, article.getId(), article.getHeader(), gson.toJson(article.getParagraphs()));
             statement.executeUpdate(articlesTableQuery);
-            Set<aTag> tags = article.getTags();
-            for (aTag tag : tags) {//возможно единственное место в существующей логике, где был бы уместнее PreparedStatement
+            Set<Tag> tags = article.getTags();
+            for (Tag tag : tags) {//возможно единственное место в существующей логике, где был бы уместнее PreparedStatement
                 statement.executeUpdate(String.format(addTag, tag.getId(), tag.getTag()));
                 statement.executeUpdate(String.format(addRelations, tag.getId(), article.getId()));
             }
@@ -70,7 +70,7 @@ public class DBArticleRepository implements ArticlesRepository {
                 int article_id = rs.getInt("article_id");
                 int tag_id = rs.getInt(2);
                 String tag_body = rs.getString("tag_body");
-                aTag tag = new aTag(tag_body);
+                Tag tag = new Tag(tag_body);
                 if (tag.getId() != tag_id)
                     System.out.format("TagID import Error. Imported fromDB: %d Generated: %d \n", tag_id, tag.getId());
                 conveyor.get(article_id).getTags().add(tag);
@@ -82,7 +82,7 @@ public class DBArticleRepository implements ArticlesRepository {
     }
 
     @Override
-    public List<Article> getFilteredByTags(List<aTag> tags) {
+    public List<Article> getFilteredByTags(List<Tag> tags) {
         return getAll().stream()
                 .filter(article -> article.getTags().containsAll(tags))
                 .collect(Collectors.toList());
@@ -105,9 +105,9 @@ public class DBArticleRepository implements ArticlesRepository {
             }
 
             resultSet = statement.executeQuery(String.format(getTagsByArticleID, id));
-            Set<aTag> tags = new HashSet<>();
+            Set<Tag> tags = new HashSet<>();
             while (resultSet.next()) {
-                aTag tag = new aTag(resultSet.getString("tag_body"));
+                Tag tag = new Tag(resultSet.getString("tag_body"));
                 tags.add(tag);
                 int tagIDfromDB = resultSet.getInt("id");
                 if (tagIDfromDB != tag.getId())

@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 public class DBArticle {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
     private String header;
     @Column(length = 65535)
     private String text;

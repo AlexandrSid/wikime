@@ -1,7 +1,7 @@
 package org.aleksid.wikime.repository;
 
 import org.aleksid.wikime.model.Article;
-import org.aleksid.wikime.model.aTag;
+import org.aleksid.wikime.model.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -29,19 +29,19 @@ class InMemoryArticlesRepositoryTest {
         a1.setId(1);
         a1.setHeader("Header 1");
         a1.setParagraphs(List.of("paragraph1", "paragraph2"));
-        a1.setTags(Set.of(new aTag("tag1"), new aTag("tag2")));
+        a1.setTags(Set.of(new Tag("tag1"), new Tag("tag2")));
 
         Article a2 = new Article();
         a2.setId(2);
         a2.setHeader("Header 2");
         a2.setParagraphs(List.of("paragraph1", "paragraph2"));
-        a1.setTags(Set.of(new aTag("tag1"), new aTag("tag3")));
+        a1.setTags(Set.of(new Tag("tag1"), new Tag("tag3")));
 
         Article a3 = new Article();
         a3.setId(3);
         a3.setHeader("Header 3");
         a3.setParagraphs(List.of("paragraph1", "paragraph2"));
-        a3.setTags(Set.of(new aTag("tag3"), new aTag("tag2")));
+        a3.setTags(Set.of(new Tag("tag3"), new Tag("tag2")));
 
         repository.add(a1);
         repository.add(a2);

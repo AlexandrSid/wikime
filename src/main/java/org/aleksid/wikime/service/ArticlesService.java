@@ -1,9 +1,10 @@
 package org.aleksid.wikime.service;
 
 import org.aleksid.wikime.model.Article;
-import org.aleksid.wikime.model.aTag;
+import org.aleksid.wikime.model.Tag;
 import org.aleksid.wikime.repository.ArticlesRepository;
 import org.aleksid.wikime.util.ArticleUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -21,8 +22,8 @@ public class ArticlesService {
     public static ArticlesService getInstance() {
         return service;
     }
-
-    private ArticlesRepository repository = ArticlesRepository.getRepository();
+    @Autowired
+    private ArticlesRepository repository;
 
 
     public List<Article> getArticlesContainingTags() {
@@ -33,7 +34,7 @@ public class ArticlesService {
         return repository.getAll();
     }
 
-    public List<Article> getArticlesContainingTags(List<aTag> tags) {
+    public List<Article> getArticlesContainingTags(List<Tag> tags) {
         if (tags.isEmpty()) return getArticlesContainingTags();
         return sortByTagsOrder(tags, repository.getFilteredByTags(tags));
     }
@@ -70,14 +71,14 @@ public class ArticlesService {
     }
 
 
-    public List<aTag> createTagsFromRequest(String articleTags) {
+    public List<Tag> createTagsFromRequest(String articleTags) {
         List tags = ((articleTags == null) || (articleTags.isEmpty()))
                 ? Collections.emptyList()
-                : Arrays.stream(articleTags.split(", ")).distinct().map(aTag::new).collect(Collectors.toList());
+                : Arrays.stream(articleTags.split(", ")).distinct().map(Tag::new).collect(Collectors.toList());
         return tags;
     }
 
-    private List<Article> sortByTagsOrder(List<aTag> tags, Collection<Article> articles) {
+    private List<Article> sortByTagsOrder(List<Tag> tags, Collection<Article> articles) {
         //внутренний класс для сортировки
         class ArticleContainer {
             Article article;
@@ -99,7 +100,7 @@ public class ArticlesService {
         //каждому тегу в запрашиваемой последовательности назначается рейтинг, пришёл первым - получил меньше(1,2,4,8...)
         Map<String, Integer> tagRating = new HashMap<>();
         int r = 128;//первые 7 тегов, остальные не будут влиять на порядок
-        for (aTag tag : tags) {
+        for (Tag tag : tags) {
             tagRating.put(tag.getTag(), r /= 2);
         }
 
