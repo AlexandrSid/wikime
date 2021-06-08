@@ -1,3 +1,6 @@
+<#--<#include  "security.ftlh">-->
+<#import "login.ftlh" as l>
+
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary text-white">
     <a class="navbar-brand" href="/wikime">Wikime</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -16,5 +19,10 @@
                 <a class="nav-link" href="javascript:history.back()">Go Back</a>
             </li>
         </ul>
+
+        <div class="navbar-text mr-3"> <#if user??>${name}<#else>Please login</#if></div>
+        <div>
+            <@l.logout />
+        </div>
     </div>
 </nav>

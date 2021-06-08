@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.aleksid.wikime.model.Article;
+import org.aleksid.wikime.model.User;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -27,10 +28,13 @@ public class DBArticle {
             inverseJoinColumns = {@JoinColumn(name = "tag_id")})
     private Set<DBTag> tags = new HashSet<>();
 
+    private User author;
+
     public DBArticle(Article article) {
         this.header = article.getHeader();
         this.text = new Gson().toJson(article.getParagraphs());
         this.tags = article.getTags().stream().map(DBTag::new).collect(Collectors.toSet());
+        this.author = article.getAuthor();
     }
 
     @Override

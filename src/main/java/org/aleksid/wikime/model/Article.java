@@ -4,6 +4,9 @@ import com.google.gson.Gson;
 import org.aleksid.wikime.dto.DBArticle;
 import lombok.*;
 
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -16,6 +19,15 @@ public class Article {
     private Set<Tag> tags;
     private String header;
     private List<String> paragraphs;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id")
+
+    private User author;
+
+    public String getAuthorName(){
+        return (author != null)?author.getUsername():"<none>";
+    }
 
     public Article(Set<Tag> tags, String header, List<String> paragraphs) {
         this.tags = tags;
@@ -42,5 +54,6 @@ public class Article {
         this.header = dbArticle.getHeader();
         this.paragraphs = Arrays.asList(new Gson().fromJson(dbArticle.getText(), String[].class));
         this.tags = dbArticle.getTags().stream().map(Tag::new).collect(Collectors.toSet());
+        this.author = dbArticle.getAuthor();
     }
 }

@@ -2,7 +2,11 @@ package org.aleksid.wikime.controller;
 
 
 import org.aleksid.wikime.model.Article;
+import org.aleksid.wikime.model.User;
 import org.aleksid.wikime.service.ArticlesService;
+import org.aleksid.wikime.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,9 +20,11 @@ import java.util.List;
 public class MainController {
 
     private final ArticlesService articlesService;
+    private final UserService userService;
 
-    public MainController(ArticlesService articlesService) {
+    public MainController(ArticlesService articlesService, UserService userService) {
         this.articlesService = articlesService;
+        this.userService = userService;
     }
 
     @GetMapping("/wikime")
@@ -72,14 +78,23 @@ public class MainController {
             @RequestParam String header,
             @RequestParam String tags,
             @RequestParam String text,
+            @RequestParam (required = false) String author,
+            @AuthenticationPrincipal User loggedUser,
             Model model
     ) {
         int articleId = Integer.valueOf(id);
         Article article = articlesService.constructAndReturn(Integer.parseInt(id), header, tags, text);
-        if (articleId == 0) {
+
+        if (author.equals( "<none>")) {
+            article.setAuthor(loggedUser);
+        } else {
+            article.setAuthor(userService.getUserByName(author));
+        }
+
+        if (articleId == 0) {//new message
             final Article article1 = articlesService.addArticle(article);
             articleId = article1.getId();
-        } else {
+        } else {//update existing
             final Article update = articlesService.update(article);
             articleId = update.getId();
         }

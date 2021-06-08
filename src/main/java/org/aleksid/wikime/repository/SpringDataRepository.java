@@ -4,6 +4,7 @@ import org.aleksid.wikime.dto.DBArticle;
 import org.aleksid.wikime.dto.DBTag;
 import org.aleksid.wikime.model.Article;
 import org.aleksid.wikime.model.Tag;
+import org.aleksid.wikime.model.User;
 import org.aleksid.wikime.util.ArticleUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -61,8 +62,10 @@ public class SpringDataRepository implements ArticlesRepository {
 
     @Override
     public Article update(Article article) {
+        long id = article.getId();
+
         DBArticle dbArticleToUpdate = new DBArticle(article);
-        dbArticleToUpdate.setId((long)article.getId());
+        dbArticleToUpdate.setId(id);
         insertTagsIfExists(dbArticleToUpdate);
             dbArticleToUpdate.getId();//foobar line
         DBArticle dbArticleSaved = repo.save(dbArticleToUpdate);
