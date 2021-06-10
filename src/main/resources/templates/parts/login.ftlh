@@ -1,3 +1,5 @@
+<#include  "security.ftlh">
+
 <#macro login path isRegisterForm>
     <form action="${path}" method="post">
         <#--username field-->

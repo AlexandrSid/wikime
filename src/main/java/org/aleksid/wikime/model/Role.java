@@ -3,7 +3,7 @@ package org.aleksid.wikime.model;
 import org.springframework.security.core.GrantedAuthority;
 
 public enum Role implements GrantedAuthority {
-    USER;
+    USER, ADMIN, MODERATOR;
 
     @Override
     public String getAuthority() {

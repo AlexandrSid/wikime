@@ -1,4 +1,4 @@
-<#--<#include  "security.ftlh">-->
+<#include  "security.ftlh">
 <#import "login.ftlh" as l>
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary text-white">
@@ -18,6 +18,16 @@
             <li class="nav-item">
                 <a class="nav-link" href="javascript:history.back()">Go Back</a>
             </li>
+            <#if isAdmin>
+                <li class="nav-item">
+                    <a class="nav-link" href="/user">User List</a>
+                </li>
+            </#if>
+            <#if user??>
+                <li class="nav-item">
+                    <a class="nav-link" href="/user/profile">Profile</a>
+                </li>
+            </#if>
         </ul>
 
         <div class="navbar-text mr-3"> <#if user??>${name}<#else>Please login</#if></div>

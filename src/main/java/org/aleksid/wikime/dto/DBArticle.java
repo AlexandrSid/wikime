@@ -28,6 +28,8 @@ public class DBArticle {
             inverseJoinColumns = {@JoinColumn(name = "tag_id")})
     private Set<DBTag> tags = new HashSet<>();
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id")
     private User author;
 
     public DBArticle(Article article) {
