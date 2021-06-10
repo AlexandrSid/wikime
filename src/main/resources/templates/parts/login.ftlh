@@ -34,53 +34,7 @@
             </div>
         </div>
 
-        <#if isRegisterForm>
-        <#--password confirmation-->
-            <div class="form-group row">
-                <label class="col-sm-2 col-form-label"> Password confirmation: </label>
-                <div class="col-sm-6">
-                    <input type="password"
-                           class="form-control ${(password2Error??)?string('is-invalid', '')}"
-                           name="password2"
-                           placeholder="Retype Password"/>
-                    <#if password2Error??>
-                        <div class="invalid-feedback">
-                            ${password2Error}
-                        </div>
-                    </#if>
-                </div>
-            </div>
-        <#--email input-->
-            <div class="form-group row">
-                <label class="col-sm-2 col-form-label"> Email: </label>
-                <div class="col-sm-6">
-                    <input type="email"
-                           class="form-control ${(emailError??)?string('is-invalid', '')}"
-                           name="email"
-                           value="<#if user??>${user.email}</#if>"
-                           placeholder="some@some.com"/>
-                    <#if emailError??>
-                        <div class="invalid-feedback">
-                            ${emailError}
-                        </div>
-                    </#if>
-                </div>
-            </div>
 
-        <#--reCapcha-->
-        <#--        <form action="?" method="POST">-->
-            <div class="col-sm-6">
-                <div class="g-recaptcha" data-sitekey="6LexKO0aAAAAAISENQ91PhH1tJp3lLbPIUW3h_l2"></div>
-                <#--            <br/>-->
-                <#--            <input type="submit" value="Submit">-->
-                <#if captchaError??>
-                    <div class="alert alert-danger" role="alert">
-                        ${captchaError}
-                    </div>
-                </#if>
-            </div>
-        <#--        </form>-->
-        </#if>
 
         <input type="hidden" name="_csrf" value="${_csrf.token}"/>
         <#if !isRegisterForm>

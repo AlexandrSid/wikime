@@ -170,7 +170,7 @@ public class HibernateTest {
         System.out.println(o);
         Set<DBTag> tags1 = o.getTags();
 
-        //TODO это должно лечиться выставлением правильного CascadeType как мне кажется
+        // это должно лечиться выставлением правильного CascadeType как мне кажется
         o.setTags(Collections.emptySet());
         tags1.forEach(t -> t.getArticles().remove(o));
 

@@ -1,6 +1,7 @@
 package org.aleksid.wikime.model;
 
 import lombok.Data;
+import org.aleksid.wikime.dto.DBArticle;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -32,6 +33,9 @@ public class User implements UserDetails {
     public boolean isModerator(){
         return roles.contains(Role.MODERATOR);
     }
+//
+//    @OneToMany(mappedBy = "author", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+//    private Set<DBArticle> articles;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

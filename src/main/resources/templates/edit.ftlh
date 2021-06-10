@@ -25,7 +25,7 @@
     <#--gt means greater than -->
     <#if article.id gt 0>
         <div class="my-2">
-            <h6>The article created by <span class="badge badge-secondary">${article.author.getUsername()}</span></h6>
+            <h6>The article created by <span class="badge badge-secondary"><#if article.author??>${article.author.getUsername()}<#else>none</#if></span></h6>
         </div>
     </#if>
     <div>

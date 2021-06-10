@@ -235,7 +235,7 @@ public class HibernateTest2dir {
         session.persist(article2);
         session.persist(article3);
         session.persist(article4);
-        //ToDo N+1 проблема во всей красе. Как впихнуть Join Fetch?
+        // N+1 проблема во всей красе. Как впихнуть Join Fetch?
 
         session.getTransaction().commit();
         session.beginTransaction();

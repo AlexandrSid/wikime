@@ -9,14 +9,14 @@
 
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
+            <li class="nav-item mx-6">
+                <a class="nav-link" href="javascript:history.back()"><b>Go Back</b></a>
+            </li>
             <li class="nav-item">
                 <a class="nav-link" href="/wikime">Home</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="/articles">Articles</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="javascript:history.back()">Go Back</a>
             </li>
             <#if isAdmin>
                 <li class="nav-item">

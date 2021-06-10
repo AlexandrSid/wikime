@@ -28,7 +28,9 @@ public class DBArticle {
             inverseJoinColumns = {@JoinColumn(name = "tag_id")})
     private Set<DBTag> tags = new HashSet<>();
 
-    @ManyToOne(fetch = FetchType.EAGER)
+
+    //так пока и не понял как сконфигурировать связь, чтобы при удалении юзера, в его статьях прописывался user_id = null
+    @ManyToOne(fetch = FetchType.EAGER)//ОШИБКА: UPDATE или DELETE в таблице "usr" нарушает ограничение внешнего ключа "article_user_fk" таблицы "articles" при попытке удалить пользователя-автора хоть одной статьи.
     @JoinColumn(name = "user_id")
     private User author;
 
