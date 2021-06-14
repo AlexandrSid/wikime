@@ -28,7 +28,7 @@ public class MainController {
     }
 
     @GetMapping("/wikime")
-    public String greeting(Model model) {
+    public String greeting() {
         return "welcome";
     }
 
@@ -79,8 +79,7 @@ public class MainController {
             @RequestParam String tags,
             @RequestParam String text,
             @RequestParam (required = false) String author,
-            @AuthenticationPrincipal User loggedUser,
-            Model model
+            @AuthenticationPrincipal User loggedUser
     ) {
         int articleId = Integer.valueOf(id);
         Article article = articlesService.constructAndReturn(Integer.parseInt(id), header, tags, text);
