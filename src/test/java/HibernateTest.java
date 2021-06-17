@@ -1,5 +1,5 @@
-import dto.DBArticle;
-import dto.DBTag;
+import org.aleksid.wikime.dto.DBArticle;
+import org.aleksid.wikime.dto.DBTag;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -170,7 +170,7 @@ public class HibernateTest {
         System.out.println(o);
         Set<DBTag> tags1 = o.getTags();
 
-        //TODO это должно лечиться выставлением правильного CascadeType как мне кажется
+        // это должно лечиться выставлением правильного CascadeType как мне кажется
         o.setTags(Collections.emptySet());
         tags1.forEach(t -> t.getArticles().remove(o));
 
@@ -190,7 +190,7 @@ public class HibernateTest {
     public void getArticlesWithJPQL(){
         String queryString = "select distinct a from ARTICLES a join a.tags tag where tag.id in :tags";
         Set<DBTag> tagsForSearch = tagsAddIfExistReturn(new DBTag("Tag4"), new DBTag("Tag2"));
-        List<Integer> tagsIDs = tagsForSearch.stream().map(DBTag::getId).collect(Collectors.toList());
+        List<Integer> tagsIDs = tagsForSearch.stream().map(t->t.getId().intValue()).collect(Collectors.toList());
         Query query = session.createQuery(queryString);
         query.setParameter("tags", tagsIDs);
         List<DBArticle> articles = query.getResultList();

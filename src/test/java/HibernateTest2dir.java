@@ -1,6 +1,5 @@
-import com.sun.xml.bind.v2.TODO;
-import dto.DBArticle;
-import dto.DBTag;
+import org.aleksid.wikime.dto.DBArticle;
+import org.aleksid.wikime.dto.DBTag;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -158,7 +157,7 @@ public class HibernateTest2dir {
     public void getArticlesWithJPQL(){
         String queryString = "select distinct a from ARTICLES a join a.tags tag where tag.id in :tags";
         Set<DBTag> tagsForSearch = tagsAddIfExistReturn(new DBTag("Tag4"), new DBTag("Tag2"));
-        List<Integer> tagsIDs = tagsForSearch.stream().map(DBTag::getId).collect(Collectors.toList());
+        List<Integer> tagsIDs = tagsForSearch.stream().map(t -> t.getId().intValue()).collect(Collectors.toList());
         Query query = session.createQuery(queryString);
         query.setParameter("tags", tagsIDs);
         List<DBArticle> articles = query.getResultList();
@@ -236,7 +235,7 @@ public class HibernateTest2dir {
         session.persist(article2);
         session.persist(article3);
         session.persist(article4);
-        //ToDo N+1 проблема во всей красе. Как впихнуть Join Fetch?
+        // N+1 проблема во всей красе. Как впихнуть Join Fetch?
 
         session.getTransaction().commit();
         session.beginTransaction();
