@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="OFF">
+    <Properties>
+        <Property name="log-path">logs</Property>
+        <Property name="log-project-name">Wikime</Property>
+        <Property name="log-pattern">%d{ISO8601} %-5p [Wikime][%t|%c{1}] %L %M %m\n</Property>
+        <Property name="filename">wikime_log</Property>
+        <Property name="rollover-strategy-max">7</Property>
+        <Property name="rolling-size-based">1 MB</Property>
+    </Properties>
+
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout>
+                <pattern>=${log-pattern}</pattern>
+            </PatternLayout>
+        </Console>
+
+        <RollingFile name="DEBUG" fileName="${log-path}/${filename}_debug.log" filePattern="${log-path}/${log-project-name}_debug_%d_%i.log.zip">
+            <PatternLayout>
+                <pattern>=${log-pattern}</pattern>
+            </PatternLayout>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="${rolling-size-based}" />
+            </Policies>
+            <DefaultRolloverStrategy max="${rollover-strategy-max}"/>
+        </RollingFile>
+
+        <RollingFile name="ERROR" fileName="${log-path}/${filename}_error.log" filePattern="${log-path}/${log-project-name}_error_%d_%i.log.zip">
+            <PatternLayout>
+                <pattern>=${log-pattern}</pattern>
+            </PatternLayout>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="${rolling-size-based}" />
+            </Policies>
+            <DefaultRolloverStrategy max="${rollover-strategy-max}"/>
+        </RollingFile>
+
+        <RollingFile name="INFO" fileName="${log-path}/${filename}_info.log" filePattern="${log-path}/${log-project-name}_info_%d_%i.log.zip">
+            <PatternLayout>
+                <pattern>=${log-pattern}</pattern>
+            </PatternLayout>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="${rolling-size-based}" />
+            </Policies>
+            <DefaultRolloverStrategy max="${rollover-strategy-max}"/>
+            <Filters>
+                <!--Deby warn, errorand fatal messages-->
+<!--                <ThresholdFilter level="warn" onMatch="DENY" onMismatch="NEUTRAL"/>-->
+                <ThresholdFilter level="error" onMatch="DENY" onMismatch="NEUTRAL"/>
+                <ThresholdFilter level="fatal" onMatch="DENY" onMismatch="NEUTRAL"/>
+
+                <!--Accepts info, warn, error, fatal and denies debut/trace-->
+                <ThresholdFilter level="info" onMatch="ACCEPT" onMismatch="DENY"/>
+
+            </Filters>
+        </RollingFile>
+    </Appenders>
+
+    <Loggers>
+        <Logger name="org.aleksid.wikime" level="trace" additivity="true">
+            <AppenderRef ref="Console" level="info"/>
+        </Logger>
+        <Root level="Debug">
+            <AppenderRef ref="DEBUG"/>
+            <AppenderRef ref="INFO"/>
+            <AppenderRef ref="ERROR" level="error"/>
+        </Root>
+    </Loggers>
+
+</Configuration>

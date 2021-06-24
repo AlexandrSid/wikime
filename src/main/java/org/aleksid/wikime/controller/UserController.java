@@ -3,6 +3,8 @@ package org.aleksid.wikime.controller;
 import org.aleksid.wikime.model.Role;
 import org.aleksid.wikime.model.User;
 import org.aleksid.wikime.service.UserService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -21,6 +23,8 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    private static final Logger logger = LogManager.getLogger(MainController.class);
 
     @GetMapping
     public String userLIst(
@@ -43,6 +47,9 @@ public class UserController {
     public String userEditForm(
             @PathVariable User user,
             Model model){
+
+        logger.info(String.format("Requested user id = %d", user.getId()));
+
         model.addAttribute("user", user);
         model.addAttribute("roles", Role.values());
         return "userEdit";
@@ -55,6 +62,9 @@ public class UserController {
             @RequestParam("userId") User user
     ){
         userService.saveUser(user, username, form);
+
+        logger.info(String.format("User id = %d has been changed", user.getId()));
+
         return "redirect:/user";
     }
 
@@ -65,6 +75,10 @@ public class UserController {
             RedirectAttributes redirectAttributes
     ) {
         userService.deleteUser(userId);
+
+        //можно было бы записать deleted by AuthenticationPrincipal user.userName, но стоит ли ради этого добавлять не несущие другой функциональности аргументы
+        logger.warn(String.format("User id = %d has been deleted", userId));
+
         redirectAttributes.addAttribute("usrD", username);
         return "redirect:/user";
     }
@@ -75,6 +89,9 @@ public class UserController {
             @RequestParam String username,
             RedirectAttributes redirectAttributes) {
         userService.activate(userId);
+
+        logger.warn(String.format("User id = %d has been ACTIVATED", userId));
+
         redirectAttributes.addAttribute("usrA", username);
         return "redirect:/user";
     }
@@ -100,6 +117,9 @@ public class UserController {
             RedirectAttributes redirectAttributes
     ){
         userService.updateProfile(user, password);
+
+        logger.warn(String.format("Requested user id = %d (%s) changed his password", user.getId(), user.getUsername()));
+
         redirectAttributes.addAttribute("pwd", "chgd");//короткие названия/значения, так как пойдут в URL
         return "redirect:/user/profile";
     }
