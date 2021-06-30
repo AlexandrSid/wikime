@@ -14,7 +14,7 @@ name: Build and Deploy to GKE
 
 on:
   release:
-    types: [created]
+    types: [ created ]
   push:
     branches: [ master ]
   pull_request:
@@ -22,10 +22,11 @@ on:
 
 env:
   PROJECT_ID: ${{ secrets.GKE_PROJECT }}
-  GKE_CLUSTER: autopilot-cluster-wikime    # TODO: update to cluster name
+  GKE_CLUSTER: autopilot-cluster-wikime   # TODO: update to cluster name
   GKE_ZONE: europe-central2   # TODO: update to cluster zone
-  DEPLOYMENT_NAME: gke-wikime # TODO: update to deployment name
-  IMAGE: static-site
+  DEPLOYMENT_NAME: wikime-gke-deployment # TODO: update to deployment name
+  IMAGE: wikime
+  TAG: 1.0.0
 
 jobs:
   setup-build-publish-deploy:
