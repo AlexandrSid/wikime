@@ -5,7 +5,9 @@ volumes:
 
 services:
   app:
-    image: 'aleksid/wikime'
+    image: 'wikime:latest'
+    build:
+      context: .
     container_name: app
     ports:
       - 8080:8080
