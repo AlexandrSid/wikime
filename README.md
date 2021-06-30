@@ -7,8 +7,8 @@ Long project of Java Enterprice Developer course
 База и приложение буду работать из разных докер контейнеров.
 
 Приложение строится в рамках курса Java Enterprice Developer от itmentor.ru.
-План его реализации примерно таков: Servlet+JSP - JDBC- Hiberntale - JUnit - Spring (core-MVC-security-test-data) (сейчас здесь) - Docker...
+План его реализации примерно таков: Servlet+JSP - JDBC- Hiberntale - JUnit - Spring (core-MVC-security-test-data) - Docker - Logging - CICD piplene is my butthurt for now
 
 данный ReadMe будет обновляятся в процессе изменений.
 
-Текущая версия от 11.06.20201
+Текущая версия от 30.06.20201
