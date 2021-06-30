@@ -1,0 +1,34 @@
+version: '3.7'
+
+volumes:
+  wikime-data:
+
+services:
+  app:
+    image: 'aleksid/wikime'
+    container_name: app
+    ports:
+      - 8080:8080
+    depends_on:
+      - db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/wikime
+      - SPRING_DATASOURCE_USERNAME=wikime
+      - SPRING_DATASOURCE_PASSWORD=wikime
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=validate
+
+  db:
+    image: 'postgres:13.1-alpine'
+    container_name: wikime-db
+    restart: on-failure
+    expose:
+      - 5432
+    volumes:
+      - /var/lib/postgresql/data
+      - ./src/main/resources/db/V0__init_db_docker.sql:/docker-entrypoint-initdb.d/1.sql
+      - ./src/main/resources/db/migration/V1__Init_DB.sql:/docker-entrypoint-initdb.d/2.sql
+      - ./src/main/resources/db/migration/V2__Add_admin_account.sql:/docker-entrypoint-initdb.d/3.sql
+    environment:
+      - POSTGRES_USER=wikime
+      - POSTGRES_PASSWORD=wikime
+      - PGDATA=/var/lib/postgresql/data/pgdata
