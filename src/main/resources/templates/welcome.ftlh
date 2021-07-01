@@ -5,8 +5,9 @@
         <h1>
             Welcome to wikime, your personal databased wiki!
         </h1>
+        <br>
         <h3>
-            This is version with very basic functionality and no DB included.
+            This is version with very basic functionality and no DB and autorization included.
         </h3>
     </div>
     <div class-="m-2">
