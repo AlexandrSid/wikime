@@ -5,6 +5,9 @@
         <h1>
             Welcome to wikime, your personal databased wiki!
         </h1>
+        <h3>
+            This is version with very basic functionality and no DB included.
+        </h3>
     </div>
     <div class-="m-2">
     <form class="form-inline" method="get" action="/articles">
