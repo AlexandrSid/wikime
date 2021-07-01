@@ -1,6 +1,5 @@
 package org.aleksid.wikime.model;
 
-import org.aleksid.wikime.dto.DBTag;
 import lombok.Data;
 
 import java.util.Objects;
@@ -37,8 +36,8 @@ public class aTag {
         return Objects.hash(tag);
     }
 
-    public aTag(DBTag dbTag) {
-        this.id = dbTag.getId();
-        this.tag = dbTag.getTag();
-    }
+//    public aTag(DBTag dbTag) {
+//        this.id = dbTag.getId();
+//        this.tag = dbTag.getTag();
+//    }
 }
