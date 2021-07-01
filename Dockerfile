@@ -7,7 +7,7 @@ RUN mvn -f /home/app/pom.xml clean package
 #
 # Package stage
 #
-FROM openjdk:11.0.7-jdk-slim
+FROM openjdk:11.0.11-jdk-slim
 WORKDIR /app
 COPY --from=build /home/app/target/wikime-1.0-SNAPSHOT.jar /wikime.jar
 EXPOSE 8080

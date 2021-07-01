@@ -27,7 +27,6 @@ services:
       - 5432
     volumes:
       - /var/lib/postgresql/data
-      - ./src/main/resources/db/V0__init_db_docker.sql:/docker-entrypoint-initdb.d/1.sql
       - ./src/main/resources/db/migration/V1__Init_DB.sql:/docker-entrypoint-initdb.d/2.sql
       - ./src/main/resources/db/migration/V2__Add_admin_account.sql:/docker-entrypoint-initdb.d/3.sql
     environment:
