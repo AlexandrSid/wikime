@@ -21,7 +21,7 @@ public class MainController {
         this.articlesService = articlesService;
     }
 
-    @GetMapping("/wikime")
+    @GetMapping(value = {"/wikime", "/"})
     public String greeting(Model model) {
         return "welcome";
     }
