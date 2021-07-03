@@ -11,4 +11,4 @@ FROM openjdk:11.0.11-jdk-slim
 WORKDIR /app
 COPY --from=build /home/app/target/wikime-1.0-SNAPSHOT.jar /wikime.jar
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "/wikime.jar"]
+ENTRYPOINT exec java -jar /wikime.jar
