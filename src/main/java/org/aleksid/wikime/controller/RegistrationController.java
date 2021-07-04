@@ -39,6 +39,9 @@ public class RegistrationController {
 
         }
 
+        //TODO
+        //send the notification to admins here.
+
         logger.info(String.format("User %s has been registered", user.getUsername()));
 
         return "redirect:/login";
