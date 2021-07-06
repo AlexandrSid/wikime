@@ -30,7 +30,7 @@ public class MainController {
         this.userService = userService;
     }
 
-    @GetMapping("/wikime")
+    @GetMapping(value = {"/wikime","/"})
     public String greeting() {
         logger.info("Main page");//оставлю это здесь, как пример того как быть не должно
         //всё-таки логгирование - это сквозная функциональность
