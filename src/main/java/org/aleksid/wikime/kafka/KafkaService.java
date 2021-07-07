@@ -1,46 +1,35 @@
 package org.aleksid.wikime.kafka;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.support.SendResult;
+import org.aleksid.wikime.model.User;
+import org.aleksid.wikime.service.UserService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
-import org.springframework.util.concurrent.ListenableFuture;
-import org.springframework.util.concurrent.ListenableFutureCallback;
+
+import java.util.concurrent.ExecutionException;
 
 @Service
 public class KafkaService {
+    private final UserService userService;
 
-    @Autowired
-    private KafkaTemplate<String, String> kafkaTemplate;
+    private final SendKafkaMessageTask messageTask;
 
-    @Value(value = "${kafka.topicName}")
-    private String topicName;
+    private static final Logger logger = LogManager.getLogger(KafkaService.class);
 
-    public void sendMessage(String message) {
-
-        ListenableFuture<SendResult<String, String>> future =
-                kafkaTemplate.send(topicName, message);
-
-        future.addCallback(new ListenableFutureCallback<SendResult<String, String>>() {
-
-            @Override
-            public void onSuccess(SendResult<String, String> result) {
-                System.out.println("Sent message=[" + message +
-                        "] with offset=[" + result.getRecordMetadata().offset() + "]");
-            }
-            @Override
-            public void onFailure(Throwable ex) {
-                System.out.println("Unable to send message=["
-                        + message + "] due to : " + ex.getMessage());
-            }
-        });
+    public KafkaService(UserService userService, SendKafkaMessageTask messageTask) {
+        this.userService = userService;
+        this.messageTask = messageTask;
     }
 
-    public static void main(String[] args) {
-        KafkaService kafkaService = new KafkaService();
-        kafkaService.sendMessage("Yo-Ho-Ho! Anchor to ya Butt!");
 
+    public void registrationAnnouncement(User user) {
+        String username = user.getUsername();
+        Long id = userService.getUserByName(username).getId();
+        try {
+            messageTask.send(String.format("User %s has been registered and got id = %d", username, id));
+        } catch (ExecutionException | InterruptedException e) {
+            logger.error(e.getMessage());
+            e.printStackTrace();
+        }
     }
-
 }

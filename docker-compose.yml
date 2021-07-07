@@ -3,16 +3,23 @@ version: '3.7'
 volumes:
   wikime-data:
 
+networks:
+  wikime-container:
+    driver: bridge
+
 services:
   app:
     image: 'wikime:latest'
     build:
       context: .
     container_name: app
+    networks:
+      - wikime-container
     ports:
-    - 8080:8080
+      - 8080:8080
     depends_on:
       - db
+      - kafka
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/wikime
       - SPRING_DATASOURCE_USERNAME=wikime
@@ -23,6 +30,8 @@ services:
     image: 'postgres:13.1-alpine'
     container_name: wikime-db
     restart: on-failure
+    networks:
+      - wikime-container
     expose:
       - 5432
     volumes:
@@ -33,3 +42,24 @@ services:
       - POSTGRES_USER=wikime
       - POSTGRES_PASSWORD=wikime
       - PGDATA=/var/lib/postgresql/data/pgdata
+
+  zookeeper:
+    image: 'bitnami/zookeeper:latest'
+    networks:
+      - wikime-container
+    ports:
+      - '2181:2181'
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+  kafka:
+    image: 'bitnami/kafka:latest'
+    networks:
+      - wikime-container
+    depends_on:
+      - zookeeper
+    environment:
+      - KAFKA_BROKER_ID=1
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://127.0.0.1:9092
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - ALLOW_PLAINTEXT_LISTENER=yes

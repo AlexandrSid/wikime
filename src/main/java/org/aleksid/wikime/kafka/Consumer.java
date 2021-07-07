@@ -1,30 +1,44 @@
 package org.aleksid.wikime.kafka;
 
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.aleksid.wikime.WikimeTelegramBot;
+import org.aleksid.wikime.controller.MainController;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.support.Acknowledgment;
+import org.springframework.kafka.support.KafkaHeaders;
+import org.springframework.messaging.handler.annotation.Header;
+import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.stereotype.Service;
 
-import java.time.Duration;
-import java.util.Arrays;
-import java.util.Properties;
-
+@Service
+@ConditionalOnProperty(value = "kafka.consumer-enabled", havingValue = "true")
 public class Consumer {
-    public static void main(String[] args) {
 
-        Properties props = new Properties();
-        props.setProperty("bootstrap.servers", "localhost:9092");
-        props.setProperty("group.id", "test");
-        props.setProperty("enable.auto.commit", "true");
-        props.setProperty("auto.commit.interval.ms", "1000");
-        props.setProperty("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
-        props.setProperty("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+    private static final Logger logger = LogManager.getLogger(Consumer.class);
 
-        KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
-        consumer.subscribe(Arrays.asList("test"));
-        while (true) {
-            ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
-            for (ConsumerRecord<String, String> record : records)
-                System.out.printf("offset = %d, key = %s, value = %s%n", record.offset(), record.key(), record.value());
-        }
+    @KafkaListener(topics = {"WIKIME_DATA"})
+    public void consume(final @Payload String message,
+                        final @Header(KafkaHeaders.OFFSET) Integer offset,
+                        final @Header(KafkaHeaders.RECEIVED_MESSAGE_KEY) String key,
+                        final @Header(KafkaHeaders.RECEIVED_PARTITION_ID) int partition,
+                        final @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
+                        final @Header(KafkaHeaders.RECEIVED_TIMESTAMP) long ts,
+                        final Acknowledgment acknowledgment
+    ) {
+        String consumed = String.format("#### -> Consumed message -> TIMESTAMP: %d\n%s\noffset: %d\nkey: %s\npartition: %d\ntopic: %s",
+                ts,
+                message,
+                offset,
+                key,
+                partition,
+                topic);
+
+        acknowledgment.acknowledge();
+
+        WikimeTelegramBot.send(message);
+
+        logger.info("message delivered though kafka " + consumed);
     }
 }
