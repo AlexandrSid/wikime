@@ -1,7 +1,5 @@
 package org.aleksid.wikime.kafka;
 
-import org.aleksid.wikime.WikimeTelegramBot;
-import org.aleksid.wikime.controller.MainController;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -37,7 +35,7 @@ public class Consumer {
 
         acknowledgment.acknowledge();
 
-        WikimeTelegramBot.send(message);
+//        WikimeTelegramBot.send(message);
 
         logger.info("message delivered though kafka " + consumed);
     }
