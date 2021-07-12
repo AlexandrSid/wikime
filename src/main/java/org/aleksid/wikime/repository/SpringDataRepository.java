@@ -48,7 +48,7 @@ public class SpringDataRepository implements ArticlesRepository {
     @Override
     public Article getById(int id) {
         DBArticle found = repo.findById((long) id).orElse(new DBArticle());
-        if (found.getId() != 0L) {
+        if (found.getId()!=null && found.getId() != 0L) {
             return new Article(found);
         } else
             return ArticleUtil.getEmptyArticle();

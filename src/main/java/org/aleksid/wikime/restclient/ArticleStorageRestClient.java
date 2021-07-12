@@ -3,11 +3,13 @@ package org.aleksid.wikime.restclient;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.MediaType;
+import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
+@Service
 public class ArticleStorageRestClient {
 
     private static final Logger logger = LogManager.getLogger(ArticleStorageRestClient.class);
@@ -32,7 +34,7 @@ public class ArticleStorageRestClient {
         } catch (WebClientResponseException e) {
             logger.error("Error response code is {} and the response body is {}", e.getRawStatusCode(), e.getResponseBodyAsString());
             System.err.format("WebClient Response Exception. Code is %s and the response body is %s", e.getRawStatusCode(), e.getResponseBodyAsString());
-            throw e;
+            return new ArticleRestDao(String.valueOf(id), "[]");
         }
     }
 
