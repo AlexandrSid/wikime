@@ -164,13 +164,13 @@ public class ArticlesService {
     public ArticleRestDao getAttributesFrom(Article article) {
         return new ArticleRestDao(
                 String.valueOf(article.getId()),
-                new Gson().toJson(article.getParagraphs())
-        );
+                article.getParagraphs().get(0)
+                );
     }
 
     public Article insertAttributesTo(Article article, ArticleRestDao textSource) {
         if (Long.valueOf(textSource.getArticleId()).equals((long) article.getId())) {
-            article.setParagraphs(Arrays.asList(new Gson().fromJson(textSource.getText(), String[].class)));
+            article.setParagraphs(Arrays.asList(textSource.getText()));
         } else {
             logger.error("attributes id doesn't match target id: Article from db: %s, Article text id: %s", article.toString(), textSource.getArticleId());
         }
