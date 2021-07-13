@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientRequestException;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 @Service
@@ -30,11 +31,15 @@ public class ArticleStorageRestClient {
                     .uri(BASE_URI_ID, id)
                     .retrieve()
                     .bodyToMono(ArticleRestDao.class)
+//                    .subscribe(result -> ArticleService.insert(result)) // видимо как-то так это должно быть в асинхронном варианте.
                     .block();
         } catch (WebClientResponseException e) {
             logger.error("Error response code is {} and the response body is {}", e.getRawStatusCode(), e.getResponseBodyAsString());
             System.err.format("WebClient Response Exception. Code is %s and the response body is %s", e.getRawStatusCode(), e.getResponseBodyAsString());
             return new ArticleRestDao(String.valueOf(id), "[]");
+//        } catch (WebClientRequestException e){
+//            System.err.format("Server don't response");
+//            return new ArticleRestDao(String.valueOf(id), "[\"Не удалось загрузить текст статьи\"]");
         }
     }
 
