@@ -25,11 +25,18 @@ public class ArticleUtil {
 
     public static Article constructAndReturn(int id, String header, String tags, String text) {
         if(tags.length()<2){tags = "  ";}
-        if(text.length()<2){text = "  ";}
         String[] tagsStringsArray = tags.substring(1, tags.length() - 1).split(", ");//корявенько
-        String[] paragraphs = text.substring(1, text.length() - 1).split(", ");//нужен нормальный шаблонизатор для фронта.
+        //String[] paragraphs = text.substring(1, text.length() - 1).split(", ");//нужен нормальный шаблонизатор для фронта.
 //        String[] tagsStringsArray = new Gson().fromJson(tags, String[].class);//не работает
 //        String[] paragraphs = new Gson().fromJson(text, String[].class);//формат строк в джисоне должен быть с кавычками
+
+        //хватит этой вакханалии с разбиением запятой. текст есть текст.
+        //чтобы модель не менять, пусть коллекция параграфов будет из одного элемента.
+        String[] paragraphs = new String[1];
+        paragraphs[0] = text;
+        if (text.isEmpty()) {
+            paragraphs = new String[0];
+        }
 
 //        System.out.println(new Gson().toJson(tagsStringsArray));
 //        System.out.println(new Gson().toJson(paragraphs));

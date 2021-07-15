@@ -190,5 +190,10 @@
             <artifactId>java-telegram-bot-api</artifactId>
             <version>4.9.0</version>
         </dependency>
+<!--        WebClient-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webflux</artifactId>
+        </dependency>
     </dependencies>
 </project>

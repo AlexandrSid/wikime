@@ -1,9 +1,14 @@
 package org.aleksid.wikime.service;
 
+import com.google.gson.Gson;
 import org.aleksid.wikime.model.Article;
 import org.aleksid.wikime.model.Tag;
 import org.aleksid.wikime.repository.ArticlesRepository;
+import org.aleksid.wikime.restclient.ArticleRestDao;
+import org.aleksid.wikime.restclient.ArticleStorageRestClient;
 import org.aleksid.wikime.util.ArticleUtil;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +17,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class ArticlesService {
+
+    private static final Logger logger = LogManager.getLogger(ArticlesService.class);
 
     //make it singleton
     private static final ArticlesService service = new ArticlesService();
@@ -22,8 +29,12 @@ public class ArticlesService {
     public static ArticlesService getInstance() {
         return service;
     }
+
     @Autowired
     private ArticlesRepository repository;
+
+    @Autowired
+    private ArticleStorageRestClient restClient;
 
 
     public List<Article> getArticlesContainingTags() {
@@ -43,10 +54,17 @@ public class ArticlesService {
         if (id == 0) {
             return ArticleUtil.getEmptyArticle();
         }
-        return repository.getById(id);
+        Article fromMainRepoWOBody = repository.getById(id);
+        //for the case of not found
+        if (fromMainRepoWOBody.getId() == 0) return fromMainRepoWOBody;
+
+        ArticleRestDao articleText = restClient.getArticleTextById((long) id);
+        insertAttributesTo(fromMainRepoWOBody, articleText);
+        return fromMainRepoWOBody;
     }
 
     public boolean deleteArticleByID(int id) {
+        restClient.deleteTextById((long) id);
         return repository.delete(id);
     }
 
@@ -57,17 +75,31 @@ public class ArticlesService {
     public Article update(Article article) {
         if (
                 article.getHeader().isEmpty() &&
-                article.getTags().isEmpty() &&
-                article.getParagraphs().isEmpty()
+                        article.getTags().isEmpty() &&
+                        article.getParagraphs().isEmpty()
         ) {
             repository.delete(article.getId());
+            restClient.deleteTextById((long) article.getId());
             return new Article();
         }
+        //пока весь текст не перенесён в новую таблицу, следующая строчка имеет смысл
+//        restClient.addNewArticle(getAttributesFrom(article));
+
+        restClient.updateArticle(getAttributesFrom(article));
+        article.setParagraphs(Collections.emptyList());
         return repository.update(article);
     }
 
     public Article addArticle(Article article) {
-        return repository.add(article);
+        //вынимаем текст для сохранения и удаляем его из основного объекта
+        ArticleRestDao attributesToSave = getAttributesFrom(article);
+        article.setParagraphs(Collections.emptyList());
+        //сохраняем основной объект с присваиванием ему id
+        Article add = repository.add(article);
+        //указываем атрибутам правильный id перед сохранением
+        attributesToSave.setArticleId(String.valueOf(add.getId()));
+        restClient.addNewArticle(attributesToSave);
+        return add;
     }
 
 
@@ -124,5 +156,24 @@ public class ArticlesService {
         });
 
         return sortable.stream().map(ArticleContainer::getArticle).collect(Collectors.toList());
+    }
+
+
+//REST based separated storage mechanism components
+
+    public ArticleRestDao getAttributesFrom(Article article) {
+        return new ArticleRestDao(
+                String.valueOf(article.getId()),
+                article.getParagraphs().get(0)
+                );
+    }
+
+    public Article insertAttributesTo(Article article, ArticleRestDao textSource) {
+        if (Long.valueOf(textSource.getArticleId()).equals((long) article.getId())) {
+            article.setParagraphs(Arrays.asList(textSource.getText()));
+        } else {
+            logger.error("attributes id doesn't match target id: Article from db: %s, Article text id: %s", article.toString(), textSource.getArticleId());
+        }
+        return article;
     }
 }

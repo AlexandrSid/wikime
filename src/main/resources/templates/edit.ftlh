@@ -48,10 +48,8 @@
                 />
             </div>
             <div class="form-group">
-                <input class="form-control col-sm-6" type="text" name="text"
-                       placeholder="[Paragraph1, Paragraph2, ..., ParagraphN]"
-                       <#if !isNew>value="[<#list article.paragraphs as paragraph>${paragraph}<#sep>, </#list>]"</#if>
-                />
+                <textarea class="form-control col-sm-6" rows="10" style="height: auto !important;" placeholder="Enter your text here" type="text"
+                          name="text"><#if !isNew><#list article.paragraphs as paragraph>${paragraph}</#list></#if></textarea>
             </div>
             <button class="btn btn-primary" type="submit"><#if isNew>Add Article<#else>Save</#if></button>
         </form>

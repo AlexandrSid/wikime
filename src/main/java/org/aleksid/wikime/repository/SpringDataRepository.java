@@ -4,7 +4,6 @@ import org.aleksid.wikime.dto.DBArticle;
 import org.aleksid.wikime.dto.DBTag;
 import org.aleksid.wikime.model.Article;
 import org.aleksid.wikime.model.Tag;
-import org.aleksid.wikime.model.User;
 import org.aleksid.wikime.util.ArticleUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -48,7 +47,7 @@ public class SpringDataRepository implements ArticlesRepository {
     @Override
     public Article getById(int id) {
         DBArticle found = repo.findById((long) id).orElse(new DBArticle());
-        if (found.getId() != 0L) {
+        if (found.getId()!=null && found.getId() != 0L) {
             return new Article(found);
         } else
             return ArticleUtil.getEmptyArticle();
@@ -72,13 +71,22 @@ public class SpringDataRepository implements ArticlesRepository {
         return new Article(dbArticleSaved);
     }
 
+/**
+        TSRL - abbreviation of Tags String Representation List
+        available in this method
+ */
+        private void insertTagsIfExists(DBArticle toSave) {
+        List<String> all2saveTSRL = toSave.getTags().stream().map(DBTag::getTag).collect(Collectors.toList());
+        List<DBTag> existingTagsFromDB = tagRepo.findAllByTagIn(all2saveTSRL);
 
-    private void insertTagsIfExists(DBArticle toSave) {
-        List<String> tagsTags = toSave.getTags().stream().map(DBTag::getTag).collect(Collectors.toList());
-        List<DBTag> allByTagIn = tagRepo.findAllByTagIn(tagsTags);
-        List<String> existing = allByTagIn.stream().map(DBTag::getTag).collect(Collectors.toList());
-        tagsTags.removeAll(existing);
-        Set<DBTag> collect = Stream.concat(allByTagIn.stream(), tagsTags.stream().map(DBTag::new)).collect(Collectors.toSet());
+        List<String> existingTSRL = existingTagsFromDB.stream().map(DBTag::getTag).collect(Collectors.toList());
+        all2saveTSRL.removeAll(existingTSRL);
+
+        List<DBTag> tags2save = all2saveTSRL.stream().map(DBTag::new).collect(Collectors.toList());
+            Iterable<DBTag> dbTags = tagRepo.saveAll(tags2save);
+            List<DBTag> justSaved_WithIdNow = (List<DBTag>) dbTags;
+
+        Set<DBTag> collect = Stream.concat(existingTagsFromDB.stream(), justSaved_WithIdNow.stream()).collect(Collectors.toSet());
         toSave.setTags(collect);
     }
 
