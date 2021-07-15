@@ -1,7 +1,7 @@
 package org.aleksid.wikime.controller;
 
+import org.aleksid.wikime.kafka.KafkaService;
 import org.aleksid.wikime.model.User;
-import org.aleksid.wikime.repository.UserRepo;
 import org.aleksid.wikime.service.UserService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -20,7 +20,7 @@ public class RegistrationController {
     private UserService userService;
 
     @Autowired
-    private UserRepo userRepo;
+    private KafkaService kafkaService;
 
     @GetMapping("/registration")
     public String registration() {
@@ -32,12 +32,16 @@ public class RegistrationController {
 
         if (!userService.addUser(user)) {
 
-                logger.warn(String.format("Attempting of register with existing username %s", user.getUsername()));
+            logger.warn(String.format("Attempting of register with existing username %s", user.getUsername()));
 
             model.addAttribute("usernameError", "User exists");
             return "registration";
 
         }
+
+        //TODO
+        //send the notification to admins here.
+        kafkaService.registrationAnnouncement(user);
 
         logger.info(String.format("User %s has been registered", user.getUsername()));
 
