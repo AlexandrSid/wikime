@@ -1,3 +1,11 @@
 body{
     color: #0877d5;
 }
+.tag{
+  background-color: #0877d5;
+    min-width: 100px;
+    border-radius: 5px;
+    display: inline-block;
+    text-align: center;
+    margin-right: 10px;
+}

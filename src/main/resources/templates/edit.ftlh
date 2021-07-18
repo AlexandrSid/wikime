@@ -42,8 +42,8 @@
                        <#if !isNew>value="${article.header}"</#if>/>
             </div>
             <div class="form-group">
-                <input class="form-control col-sm-6" type="text" name="tags"
-                       placeholder="enter tags separtated by ', ': [Tag1, Tag2, a cat, ..., Last Tag]"
+                <input class="form-control col-sm-6" type="text" name="tags" id="tags"
+                       placeholder="enter tags separated by ', ': [Tag1, Tag2, a cat, ..., Last Tag]"
                        <#if !isNew>value="[<#list article.tags as tag>${tag}<#sep>, </#list>]"</#if>
                 />
             </div>
